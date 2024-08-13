@@ -34,6 +34,10 @@ public class TicTacToeGame {
             }
             return sb.toString();
         }
+
+        public void setField(final int x, final int y, final Field field) {
+            this.fields[y][x] = field;
+        }
     }
 
     private final Board board;
