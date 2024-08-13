@@ -10,7 +10,7 @@
   </properties>
   <version>1.0-SNAPSHOT</version>
   <name>online-tic-tac-toe</name>
-  <url>http://maven.apache.org</url>
+  <url>https://maven.apache.org</url>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>

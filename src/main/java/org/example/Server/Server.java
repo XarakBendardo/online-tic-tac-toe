@@ -29,11 +29,18 @@ public class Server
     }
 
     public static void registerPlayer(Socket socket) {
+        String msg = "Client connected. ";
         if(socketQueue.size() == 1) {
-            new ClientHandler(socketQueue.remove(0), socket).start();
+            try {
+                new ClientHandler(socketQueue.remove(0), socket).start();
+                msg += "Game started.";
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else {
             socketQueue.add(socket);
+            msg += "Waiting for second player.";
         }
-        System.out.println("Client connected");
+        System.out.println(msg);
     }
 }
