@@ -11,6 +11,8 @@ public class TicTacToeGame {
                 Field.O, 'O',
                 Field.EMPTY, ' '
         );
+
+        public enum Turn {Player_X, Player_O}
         Field[][] fields;
 
         public Board() {

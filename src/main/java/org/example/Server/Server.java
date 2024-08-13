@@ -3,40 +3,37 @@ package org.example.Server;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Server
 {
+    private static final ArrayList<Socket> socketQueue = new ArrayList<>(2);
     private static final int PORT = 1234;
     public static void main( String[] args ) {
         ServerSocket serverSocket = null;
-        Socket clientSocket = null;
-        BufferedReader in = null;
-        BufferedWriter out = null;
-
         try {
             serverSocket = new ServerSocket(Server.PORT);
             System.out.println("Server is running on port " + Server.PORT);
-            clientSocket = serverSocket.accept();
-            System.out.println("Client connected");
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-
-            String message = in.readLine();
-            System.out.println("Received message: " + message);
-            out.write("Hello from server\n");
-            out.flush();
-
+            while (true) {
+                registerPlayer(serverSocket.accept());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
-                if (out != null) out.close();
-                if (in != null) in.close();
-                if (clientSocket != null) clientSocket.close();
                 if (serverSocket != null) serverSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static void registerPlayer(Socket socket) {
+        if(socketQueue.size() == 1) {
+            new ClientHandler(socketQueue.remove(0), socket).start();
+        } else {
+            socketQueue.add(socket);
+        }
+        System.out.println("Client connected");
     }
 }
