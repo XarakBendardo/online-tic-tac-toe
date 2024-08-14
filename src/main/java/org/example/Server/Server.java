@@ -1,5 +1,7 @@
 package org.example.Server;
 
+import org.example.Networking.NetworkInfo;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -8,12 +10,11 @@ import java.util.ArrayList;
 public class Server
 {
     private static final ArrayList<Socket> socketQueue = new ArrayList<>(2);
-    private static final int PORT = 1234;
     public static void main( String[] args ) {
         ServerSocket serverSocket = null;
         try {
-            serverSocket = new ServerSocket(Server.PORT);
-            System.out.println("Server is running on port " + Server.PORT);
+            serverSocket = new ServerSocket(NetworkInfo.SERVER_PORT);
+            System.out.println("Server is running on port " + NetworkInfo.SERVER_PORT);
             while (true) {
                 registerPlayer(serverSocket.accept());
             }

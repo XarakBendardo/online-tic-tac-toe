@@ -5,10 +5,9 @@ import java.net.Socket;
 import java.util.Scanner;
 
 import org.example.Networking.CommandManager;
+import org.example.Networking.NetworkInfo;
 
 public class Client {
-    private static final int SERVER_PORT = 1234;
-    private static final String SERVER_ADDRESS = "localhost";
     private static Socket socket = null;
     private static BufferedWriter out = null;
     private static BufferedReader in = null;
@@ -37,7 +36,7 @@ public class Client {
     }
 
     private static void connectToTheServer() throws IOException {
-        socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
+        socket = new Socket(NetworkInfo.SERVER_ADDRESS, NetworkInfo.SERVER_PORT);
         System.out.println("Connected to server");
         out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
