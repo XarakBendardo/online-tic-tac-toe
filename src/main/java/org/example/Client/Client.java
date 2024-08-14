@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
+import org.example.Game.TicTacToeGame;
 import org.example.Networking.CommandManager;
 import org.example.Networking.NetworkInfo;
 
@@ -13,6 +14,7 @@ public class Client {
     private static BufferedReader in = null;
     private static final Scanner scanner = new Scanner(System.in);
     private static boolean playerTurn;
+    private static TicTacToeGame game = new TicTacToeGame();
 
     public static void main(String[] args) {
         try {
@@ -51,22 +53,26 @@ public class Client {
     }
 
     private static void processTurn() throws IOException {
+        String cords;
         if(playerTurn) {
             System.out.println("Enter your move (x y): ");
-            String arg = scanner.nextLine();
-            CommandManager.sendCommand(out, CommandManager.CLIENT_MOVE, arg);
-            String response = in.readLine();
-            if(response.equals(CommandManager.SERVER_OK)) {
-                System.out.println("Move accepted");
-            } else {
-                throw new IOException("Unexpected response from server: " + response);
+            cords = scanner.nextLine();
+            CommandManager.sendCommand(out, CommandManager.CLIENT_MOVE, cords);
+            String responseCommand = in.readLine();
+            if(!responseCommand.equals(CommandManager.SERVER_OK)) {
+                throw new IOException("Unexpected response from server: " + responseCommand);
             }
-            playerTurn = false;
         } else {
             System.out.println("Waiting for opponent's move");
             String responseCommand = in.readLine();
-            System.out.println("Response: " + responseCommand + ": " + in.readLine());
-            playerTurn = true;
+            if(!responseCommand.equals(CommandManager.CLIENT_MOVE)) {
+                throw new IOException("Unexpected response from server: " + responseCommand);
+            }
+            cords = in.readLine();
         }
+        playerTurn = !playerTurn;
+        game.setField(Integer.parseInt(cords.substring(0, 1)), Integer.parseInt(cords.substring(1, 2)));
+        game.changeTurn();
+        System.out.println(game.getBoardAsString());
     }
 }

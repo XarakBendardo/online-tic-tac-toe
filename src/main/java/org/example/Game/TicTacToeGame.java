@@ -25,8 +25,9 @@ public class TicTacToeGame {
         public String toString() {
             StringBuilder sb = new StringBuilder();
             for (var row : fields) {
+                sb.append('|');
                 for (var field : row) {
-                    sb.append(field2Char.get(field));
+                    sb.append(field2Char.get(field)).append('|');
                 }
                 sb.append('\n');
             }
@@ -51,4 +52,5 @@ public class TicTacToeGame {
     public void setField(final int x, final int y) {
         this.board.setField(x, y, this.turn == Turn.Player_X ? Board.Field.X : Board.Field.O);
     }
+    public String getBoardAsString() {return this.board.toString();}
 }
