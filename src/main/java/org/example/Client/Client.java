@@ -2,20 +2,26 @@ package org.example.Client;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Scanner;
+
+import org.example.Networking.CommandManager;
 
 public class Client {
-    public static void main(String[] args) {
-        Socket socket = null;
-        BufferedWriter out = null;
-        BufferedReader in = null;
-        try {
-            socket = new Socket("localhost", 1234);
-            System.out.println("Connected to server");
-            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    private static final int SERVER_PORT = 1234;
+    private static final String SERVER_ADDRESS = "localhost";
+    private static Socket socket = null;
+    private static BufferedWriter out = null;
+    private static BufferedReader in = null;
+    private static final Scanner scanner = new Scanner(System.in);
+    private static boolean playerTurn;
 
-            String response = in.readLine();
-            System.out.println("Received response: " + response);
+    public static void main(String[] args) {
+        try {
+            connectToTheServer();
+            startGame();
+            while(true) {
+                processTurn();
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -27,6 +33,41 @@ public class Client {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private static void connectToTheServer() throws IOException {
+        socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
+        System.out.println("Connected to server");
+        out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    }
+
+    private static void startGame() throws IOException {
+        String response = in.readLine();
+        if(!response.equals(CommandManager.SERVER_START_GAME)) {
+            throw new IOException("Unexpected response from server: " + response);
+        }
+        playerTurn = in.readLine().equals("X");
+    }
+
+    private static void processTurn() throws IOException {
+        if(playerTurn) {
+            System.out.println("Enter your move (x y): ");
+            String arg = scanner.nextLine();
+            CommandManager.sendCommand(out, CommandManager.CLIENT_MOVE, arg);
+            String response = in.readLine();
+            if(response.equals(CommandManager.SERVER_OK)) {
+                System.out.println("Move accepted");
+            } else {
+                throw new IOException("Unexpected response from server: " + response);
+            }
+            playerTurn = false;
+        } else {
+            System.out.println("Waiting for opponent's move");
+            String response = in.readLine();
+            System.out.println("Response: " + response);
+            playerTurn = true;
         }
     }
 }

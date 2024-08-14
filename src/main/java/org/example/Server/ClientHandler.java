@@ -1,7 +1,7 @@
 package org.example.Server;
 
 import org.example.Game.TicTacToeGame;
-import org.example.Networking.Command;
+import org.example.Networking.CommandManager;
 
 import java.io.*;
 import java.net.Socket;
@@ -53,9 +53,10 @@ public class ClientHandler extends Thread {
             if (this.activePlayerSocket == null || this.inactivePlayerSocket == null) {
                 throw new IllegalStateException("Both sockets must be registered before starting the game.");
             }
-            System.out.println("Game started");
-            this.sendCommand(this.activeOut, Command.SERVER_START_GAME);
-            this.sendCommand(this.inactiveOut, Command.SERVER_START_GAME);
+            CommandManager.sendCommand(this.activeOut, CommandManager.SERVER_START_GAME, "X");
+            System.out.println("Send to first player");
+            CommandManager.sendCommand(this.inactiveOut, CommandManager.SERVER_START_GAME, "O");
+            System.out.println("Send to second player");
             while(true) {
                 this.processTurn();
             }
@@ -75,31 +76,29 @@ public class ClientHandler extends Thread {
         }
     }
 
-    private void processTurn() {
-        try {
-            String command = this.activeIn.readLine();
-            if(command == null) {
-                throw new IOException("Connection closed");
-            }
-            switch (command) {
-                case Command.CLIENT_MOVE -> {
-                    String move = this.activeIn.readLine();
-                    if (move == null) {
-                        throw new IOException("Connection closed");
-                    }
-                    this.board.setField(
-                            Integer.parseInt(move.substring(0, 1)),
-                            Integer.parseInt(move.substring(1, 2)),
-                            this.turn == TicTacToeGame.Board.Turn.Player_X ? TicTacToeGame.Board.Field.X : TicTacToeGame.Board.Field.O);
-                    this.sendCommand(this.activeOut, Command.SERVER_OK);
-                    this.sendCommand(this.inactiveOut, Command.CLIENT_MOVE, move);
-                }
-                default -> throw new IOException("Invalid command: " + command);
-            }
-            this.changeTurn();
-        } catch (IOException | NumberFormatException e) {
-            e.printStackTrace();
+    private void processTurn() throws IOException {
+        String command = this.activeIn.readLine();
+        if(command == null) {
+            throw new IOException("Connection closed");
         }
+        System.out.println("Command: " + command);
+        switch (command) {
+            case CommandManager.CLIENT_MOVE -> {
+                String move = this.activeIn.readLine();
+                if (move == null) {
+                    throw new IOException("Connection closed");
+                }
+                System.out.println("Move: " + move);
+                this.board.setField(
+                        Integer.parseInt(move.substring(0, 1)),
+                        Integer.parseInt(move.substring(1, 2)),
+                        this.turn == TicTacToeGame.Board.Turn.Player_X ? TicTacToeGame.Board.Field.X : TicTacToeGame.Board.Field.O);
+                CommandManager.sendCommand(this.activeOut, CommandManager.SERVER_OK);
+                CommandManager.sendCommand(this.inactiveOut, CommandManager.CLIENT_MOVE, move);
+            }
+            default -> throw new IOException("Invalid command: " + command);
+        }
+        this.changeTurn();
     }
 
     private void changeTurn() {
@@ -110,25 +109,5 @@ public class ClientHandler extends Thread {
         this.activeOut = this.inactiveOut;
         this.inactiveOut = tempOut;
         this.turn = this.turn == TicTacToeGame.Board.Turn.Player_X ? TicTacToeGame.Board.Turn.Player_O : TicTacToeGame.Board.Turn.Player_X;
-    }
-
-    private void sendCommand(BufferedWriter out, String command) {
-        try {
-            out.write(command);
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void sendCommand(BufferedWriter out, String command, String arg) {
-        try {
-            out.write(command);
-            out.newLine();
-            out.write(arg);
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
