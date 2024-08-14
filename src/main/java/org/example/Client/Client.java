@@ -65,8 +65,8 @@ public class Client {
             playerTurn = false;
         } else {
             System.out.println("Waiting for opponent's move");
-            String response = in.readLine();
-            System.out.println("Response: " + response);
+            String responseCommand = in.readLine();
+            System.out.println("Response: " + responseCommand + ": " + in.readLine());
             playerTurn = true;
         }
     }
