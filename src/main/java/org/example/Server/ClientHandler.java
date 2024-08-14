@@ -7,8 +7,8 @@ import java.io.*;
 import java.net.Socket;
 
 public class ClientHandler extends Thread {
-    private final TicTacToeGame.Board board;
-    private TicTacToeGame.Board.Turn turn;
+
+    private final TicTacToeGame game;
     private final Socket activePlayerSocket, inactivePlayerSocket;
     private BufferedReader activeIn, inactiveIn;
     private BufferedWriter activeOut, inactiveOut;
@@ -16,8 +16,7 @@ public class ClientHandler extends Thread {
     public ClientHandler(Socket activePlayerSocket, Socket inactivePlayerSocket) throws IOException {
         this.activePlayerSocket = activePlayerSocket;
         this.inactivePlayerSocket = inactivePlayerSocket;
-        this.turn = TicTacToeGame.Board.Turn.Player_X;
-        this.board = new TicTacToeGame.Board();
+        this.game = new TicTacToeGame();
 
         BufferedReader tempIn_X = null, tempIn_O = null;
         BufferedWriter tempOut_X = null, tempOut_O;
@@ -50,17 +49,11 @@ public class ClientHandler extends Thread {
     @Override
     public void run() {
         try {
-            if (this.activePlayerSocket == null || this.inactivePlayerSocket == null) {
-                throw new IllegalStateException("Both sockets must be registered before starting the game.");
-            }
-            CommandManager.sendCommand(this.activeOut, CommandManager.SERVER_START_GAME, "X");
-            System.out.println("Send to first player");
-            CommandManager.sendCommand(this.inactiveOut, CommandManager.SERVER_START_GAME, "O");
-            System.out.println("Send to second player");
+            this.startGame();
             while(true) {
                 this.processTurn();
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
@@ -76,6 +69,13 @@ public class ClientHandler extends Thread {
         }
     }
 
+    private void startGame() throws IOException {
+        CommandManager.sendCommand(this.activeOut, CommandManager.SERVER_START_GAME, "X");
+        System.out.println("Send to first player");
+        CommandManager.sendCommand(this.inactiveOut, CommandManager.SERVER_START_GAME, "O");
+        System.out.println("Send to second player");
+    }
+
     private void processTurn() throws IOException {
         String command = this.activeIn.readLine();
         if(command == null) {
@@ -85,14 +85,8 @@ public class ClientHandler extends Thread {
         switch (command) {
             case CommandManager.CLIENT_MOVE -> {
                 String move = this.activeIn.readLine();
-                if (move == null) {
-                    throw new IOException("Connection closed");
-                }
                 System.out.println("Move: " + move);
-                this.board.setField(
-                        Integer.parseInt(move.substring(0, 1)),
-                        Integer.parseInt(move.substring(1, 2)),
-                        this.turn == TicTacToeGame.Board.Turn.Player_X ? TicTacToeGame.Board.Field.X : TicTacToeGame.Board.Field.O);
+                this.game.setField(Integer.parseInt(move.substring(0, 1)), Integer.parseInt(move.substring(1, 2)));
                 CommandManager.sendCommand(this.activeOut, CommandManager.SERVER_OK);
                 CommandManager.sendCommand(this.inactiveOut, CommandManager.CLIENT_MOVE, move);
             }
@@ -108,6 +102,6 @@ public class ClientHandler extends Thread {
         this.inactiveIn = tempIn;
         this.activeOut = this.inactiveOut;
         this.inactiveOut = tempOut;
-        this.turn = this.turn == TicTacToeGame.Board.Turn.Player_X ? TicTacToeGame.Board.Turn.Player_O : TicTacToeGame.Board.Turn.Player_X;
+        this.game.changeTurn();
     }
 }

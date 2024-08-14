@@ -6,13 +6,11 @@ public class TicTacToeGame {
     public static class Board {
         public static final int SIZE = 3;
         public enum Field {X, O, EMPTY}
-        static final Map<Field, Character> map = Map.of(
+        private static final Map<Field, Character> field2Char = Map.of(
                 Field.X, 'X',
                 Field.O, 'O',
                 Field.EMPTY, ' '
         );
-
-        public enum Turn {Player_X, Player_O}
         Field[][] fields;
 
         public Board() {
@@ -28,7 +26,7 @@ public class TicTacToeGame {
             StringBuilder sb = new StringBuilder();
             for (var row : fields) {
                 for (var field : row) {
-                    sb.append(map.get(field));
+                    sb.append(field2Char.get(field));
                 }
                 sb.append('\n');
             }
@@ -39,10 +37,18 @@ public class TicTacToeGame {
             this.fields[y][x] = field;
         }
     }
-
     private final Board board;
+    public enum Turn {Player_X, Player_O}
+    private Turn turn;
 
     public TicTacToeGame() {
         this.board = new Board();
+        this.turn = Turn.Player_X;
+    }
+
+    public Turn getTurn() {return this.turn;}
+    public void changeTurn() {this.turn = this.turn == Turn.Player_X ? Turn.Player_O : Turn.Player_X;}
+    public void setField(final int x, final int y) {
+        this.board.setField(x, y, this.turn == Turn.Player_X ? Board.Field.X : Board.Field.O);
     }
 }
