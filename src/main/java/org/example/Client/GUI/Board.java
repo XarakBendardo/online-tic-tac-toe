@@ -8,11 +8,13 @@ import java.io.File;
 import java.io.IOException;
 
 public class Board extends JPanel {
-    public static final Dimension PREFFERED_SIZE = new Dimension(800, 800);
+    public static final Dimension PREFERRED_SIZE = new Dimension(800, 800);
     private final BufferedImage backgroundImg;
-    public Board() {
+
+    private static Board instance;
+    private Board() {
         super();
-        this.setPreferredSize(PREFFERED_SIZE);
+        this.setPreferredSize(PREFERRED_SIZE);
 
         BufferedImage tempImg;
         try {
@@ -22,6 +24,13 @@ public class Board extends JPanel {
             tempImg = null;
         }
         this.backgroundImg = tempImg;
+    }
+
+    public static Board getInstance() {
+        if (instance == null) {
+            instance = new Board();
+        }
+        return instance;
     }
 
     @Override

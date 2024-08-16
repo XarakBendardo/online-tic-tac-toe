@@ -7,8 +7,6 @@ import java.awt.*;
 public class MainFrame extends JFrame {
     private static final String MAIN_FRAME_NAME = "Tic Tac Toe";
     private static MainFrame instance = null;
-    private static final int WIDTH = 1000;
-    private static final int HEIGHT = 800;
 
     private MainFrame() {
         super(MAIN_FRAME_NAME);
@@ -18,7 +16,8 @@ public class MainFrame extends JFrame {
                 (Toolkit.getDefaultToolkit().getScreenSize().height - HEIGHT) / 2,
                 this.getWidth(),
                 this.getHeight());
-        this.setContentPane(new Board());
+        this.setContentPane(Menu.getInstance());
+        this.setResizable(false);
         this.pack();
     }
 
