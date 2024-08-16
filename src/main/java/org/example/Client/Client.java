@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
+import org.example.Client.GUI.MainFrame;
 import org.example.Game.TicTacToeGame;
 import org.example.Networking.CommandManager;
 import org.example.Networking.NetworkInfo;
@@ -17,24 +18,25 @@ public class Client {
     private static TicTacToeGame game = new TicTacToeGame();
 
     public static void main(String[] args) {
-        try {
-            connectToTheServer();
-            startGame();
-            while(true) {
-                processTurn();
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (out != null) out.close();
-                if (in != null) in.close();
-                if (socket != null) socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+//        try {
+//            connectToTheServer();
+//            startGame();
+//            while(true) {
+//                processTurn();
+//            }
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            try {
+//                if (out != null) out.close();
+//                if (in != null) in.close();
+//                if (socket != null) socket.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+        MainFrame.getInstance().setVisible(true);
     }
 
     private static void connectToTheServer() throws IOException {
