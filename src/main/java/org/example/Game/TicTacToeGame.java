@@ -34,6 +34,9 @@ public class TicTacToeGame {
             return sb.toString();
         }
 
+        public boolean isFieldFree(final int x, final int y) {
+            return this.fields[y][x] == Field.EMPTY;
+        }
         public void setField(final int x, final int y, final Field field) {
             this.fields[y][x] = field;
         }
@@ -49,8 +52,12 @@ public class TicTacToeGame {
 
     public Turn getTurn() {return this.turn;}
     public void changeTurn() {this.turn = this.turn == Turn.Player_X ? Turn.Player_O : Turn.Player_X;}
-    public void setField(final int x, final int y) {
-        this.board.setField(x, y, this.turn == Turn.Player_X ? Board.Field.X : Board.Field.O);
+    public boolean setField(final int x, final int y) {
+        if(this.board.isFieldFree(x, y)) {
+            this.board.setField(x, y, this.turn == Turn.Player_X ? Board.Field.X : Board.Field.O);
+            return true;
+        }
+        return false;
     }
     public String getBoardAsString() {return this.board.toString();}
 }
