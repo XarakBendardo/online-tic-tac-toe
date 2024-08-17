@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
-import org.example.Client.GUI.MainFrame;
+import org.example.Client.GUI.ComponentFactory;
 import org.example.Game.TicTacToeGame;
 import org.example.Networking.CommandManager;
 import org.example.Networking.NetworkInfo;
@@ -36,7 +36,7 @@ public class Client {
 //                e.printStackTrace();
 //            }
 //        }
-        MainFrame.getInstance().setVisible(true);
+        ComponentFactory.MainFrame().setVisible(true);
     }
 
     private static void connectToTheServer() throws IOException {
