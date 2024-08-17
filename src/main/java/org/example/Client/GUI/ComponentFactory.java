@@ -1,8 +1,11 @@
 package org.example.Client.GUI;
 
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -35,8 +38,8 @@ public class ComponentFactory {
         if(SingletonComponentInstances.mainMenu == null) {
             SingletonComponentInstances.mainMenu = new JPanel();
             SingletonComponentInstances.mainMenu.setPreferredSize(MENU_PREFERRED_SIZE);
-            SingletonComponentInstances.mainMenu.add(MenuButton("PLAY"));
-            SingletonComponentInstances.mainMenu.add(MenuButton("EXIT"));
+            SingletonComponentInstances.mainMenu.add(PlayMenuButton());
+            SingletonComponentInstances.mainMenu.add(ExitMenuButton());
             var layout = new GridLayout(SingletonComponentInstances.mainMenu.getComponentCount(), 1, 0, 50);
             SingletonComponentInstances.mainMenu.setLayout(layout);
         }
@@ -45,6 +48,23 @@ public class ComponentFactory {
     public static JButton MenuButton(String text) {
         var button = new JButton(text);
         button.setPreferredSize(MENU_BUTTON_PREFERRED_SIZE);
+        return button;
+    }
+
+    public static JButton PlayMenuButton() {
+        var button = MenuButton("PLAY");
+        button.addActionListener(e -> {
+            MainFrame().setContentPane(Board());
+            MainFrame().pack();
+            MainFrame().revalidate();
+            MainFrame().repaint();
+        });
+        return button;
+    }
+
+    public static JButton ExitMenuButton() {
+        var button = MenuButton("EXIT");
+        button.addActionListener(e -> MainFrame().dispose());
         return button;
     }
 
@@ -69,6 +89,32 @@ public class ComponentFactory {
                 }
             };
             SingletonComponentInstances.board.setPreferredSize(BOARD_PREFERRED_SIZE);
+            SingletonComponentInstances.board.addMouseListener(new MouseListener() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    System.out.println(e.getX());
+                }
+
+                @Override
+                public void mousePressed(MouseEvent e) {
+
+                }
+
+                @Override
+                public void mouseReleased(MouseEvent e) {
+
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+
+                }
+            });
         }
         return SingletonComponentInstances.board;
     }
