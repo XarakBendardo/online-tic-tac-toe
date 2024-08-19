@@ -2,6 +2,7 @@ package org.example.Client.GUI;
 
 
 import org.example.Game.TicTacToeGame;
+import org.example.Game.TicTacToeGameForClient;
 
 import javax.swing.*;
 import java.awt.*;
@@ -42,10 +43,8 @@ public class ComponentManager {
                 return cordY;
             }
         }
-        private final TicTacToeGame game;
         private GUIBoard() {
             super();
-            this.game = new TicTacToeGame();
 
             GUIBoardField field;
             for(int y = 0; y < TicTacToeGame.Board.SIZE; ++y) {
@@ -62,12 +61,12 @@ public class ComponentManager {
         @Override
         public void mouseClicked(MouseEvent e) {
             if(e.getSource() instanceof GUIBoardField field) {
-                if(this.game.setField(field.getCordX(), field.getCordY())) {
-                    field.setField(this.game.getTurn());
+                if(TicTacToeGameForClient.getInstance().setField(field.getCordX(), field.getCordY())) {
+                    field.setField(TicTacToeGameForClient.getInstance().getTurn());
                     field.revalidate();
                     field.repaint();
 
-                    this.game.changeTurn();
+                    TicTacToeGameForClient.getInstance().changeTurn();
                 }
             }
         }

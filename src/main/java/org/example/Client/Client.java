@@ -6,6 +6,7 @@ import java.util.Scanner;
 
 import org.example.Client.GUI.ComponentManager;
 import org.example.Game.TicTacToeGame;
+import org.example.Game.TicTacToeGameForClient;
 import org.example.Networking.CommandManager;
 import org.example.Networking.NetworkInfo;
 
@@ -18,6 +19,15 @@ public class Client {
     private static TicTacToeGame game = new TicTacToeGame();
 
     public static void main(String[] args) {
+        initAll();
+        run();
+    }
+
+    public static void initAll() {
+        TicTacToeGameForClient.initInstance(TicTacToeGame.Turn.Player_X);
+    }
+
+    public static void run() {
         ComponentManager.MainFrame().setVisible(true);
     }
 
