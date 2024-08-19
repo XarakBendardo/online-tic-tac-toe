@@ -2,12 +2,9 @@ package org.example.Client.GUI;
 
 
 import org.example.Game.TicTacToeGame;
-import org.example.Game.TicTacToeGameForClient;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 
 public class ComponentManager {
@@ -17,77 +14,36 @@ public class ComponentManager {
     private static final Dimension BOARD_PREFERRED_SIZE = new Dimension(800, 800);
     private static final Dimension BOARD_FIELD_PREFERRED_SIZE = new Dimension(200, 200);
 
-    private static class GUIBoard extends JPanel implements MouseListener {
-        private static class GUIBoardField extends JPanel {
-            private final int cordX;
-            private final int cordY;
-            private GUIBoardField(int x, int y) {
-                super();
-                this.setPreferredSize(BOARD_FIELD_PREFERRED_SIZE);
-                this.cordX = x;
-                this.cordY = y;
-            }
-
-            public void setField(TicTacToeGame.Turn turn) {
-                if(this.getComponentCount() == 0) {
-                    String content = turn == TicTacToeGame.Turn.Player_X ? "X" : "O";
-                    this.add(new JTextField(content));
-                }
-            }
-
-            public int getCordX() {
-                return cordX;
-            }
-
-            public int getCordY() {
-                return cordY;
-            }
-        }
-        private GUIBoard() {
+    static class GUIBoardField extends JPanel {
+        private final int cordX;
+        private final int cordY;
+        private GUIBoardField(int x, int y) {
             super();
-
-            GUIBoardField field;
-            for(int y = 0; y < TicTacToeGame.Board.SIZE; ++y) {
-                for(int x = 0; x < TicTacToeGame.Board.SIZE; ++x) {
-                    field = new GUIBoardField(x, y);
-                    field.addMouseListener(this);
-                    this.add(field);
-                }
-            }
-            this.setLayout(new GridLayout(TicTacToeGame.Board.SIZE, TicTacToeGame.Board.SIZE, 40, 40));
-            this.setBackground(Color.BLACK);
+            this.setPreferredSize(BOARD_FIELD_PREFERRED_SIZE);
+            this.cordX = x;
+            this.cordY = y;
         }
 
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            if(e.getSource() instanceof GUIBoardField field) {
-                if(TicTacToeGameForClient.getInstance().setField(field.getCordX(), field.getCordY())) {
-                    field.setField(TicTacToeGameForClient.getInstance().getTurn());
-                    field.revalidate();
-                    field.repaint();
-
-                    TicTacToeGameForClient.getInstance().changeTurn();
-                }
+        public void setField(TicTacToeGame.Turn turn) {
+            if(this.getComponentCount() == 0) {
+                String content = turn == TicTacToeGame.Turn.Player_X ? "X" : "O";
+                this.add(new JTextField(content));
             }
         }
 
-        @Override
-        public void mousePressed(MouseEvent e) {}
+        public int getCordX() {
+            return cordX;
+        }
 
-        @Override
-        public void mouseReleased(MouseEvent e) {}
-
-        @Override
-        public void mouseEntered(MouseEvent e) {}
-
-        @Override
-        public void mouseExited(MouseEvent e) {}
+        public int getCordY() {
+            return cordY;
+        }
     }
 
     private static class SingletonComponentInstances {
         public static JFrame mainFrame = null;
         public static JPanel mainMenu = null;
-        public static GUIBoard board = null;
+        public static JPanel board = null;
     }
 
     public static JFrame MainFrame() {
@@ -101,7 +57,7 @@ public class ComponentManager {
         return SingletonComponentInstances.mainFrame;
     }
 
-    public static JPanel MainMenu() {
+    static JPanel MainMenu() {
         if(SingletonComponentInstances.mainMenu == null) {
             SingletonComponentInstances.mainMenu = new JPanel();
             SingletonComponentInstances.mainMenu.setPreferredSize(MENU_PREFERRED_SIZE);
@@ -112,32 +68,37 @@ public class ComponentManager {
         }
         return SingletonComponentInstances.mainMenu;
     }
-    public static JButton MenuButton(String text) {
+    static JButton MenuButton(String text) {
         var button = new JButton(text);
         button.setPreferredSize(MENU_BUTTON_PREFERRED_SIZE);
         return button;
     }
 
-    public static JButton PlayMenuButton() {
+    static JButton PlayMenuButton() {
         var button = MenuButton("PLAY");
-        button.addActionListener(e -> {
-            MainFrame().setContentPane(Board());
-            MainFrame().pack();
-            MainFrame().revalidate();
-            MainFrame().repaint();
-        });
+        button.addActionListener(Listeners.PlayMenuButtonListener());
         return button;
     }
 
-    public static JButton ExitMenuButton() {
+    static JButton ExitMenuButton() {
         var button = MenuButton("EXIT");
-        button.addActionListener(e -> MainFrame().dispose());
+        button.addActionListener(Listeners.ExitMenuButtonListener());
         return button;
     }
 
-    private static GUIBoard Board() {
+    static JPanel Board() {
         if(SingletonComponentInstances.board == null) {
-            SingletonComponentInstances.board = new GUIBoard();
+            SingletonComponentInstances.board = new JPanel();
+            GUIBoardField field;
+            for(int y = 0; y < TicTacToeGame.Board.SIZE; ++y) {
+                for(int x = 0; x < TicTacToeGame.Board.SIZE; ++x) {
+                    field = new GUIBoardField(x, y);
+                    field.addMouseListener(Listeners.BoardMouseListener());
+                    SingletonComponentInstances.board.add(field);
+                }
+            }
+            SingletonComponentInstances.board.setLayout(new GridLayout(TicTacToeGame.Board.SIZE, TicTacToeGame.Board.SIZE, 40, 40));
+            SingletonComponentInstances.board.setBackground(Color.BLACK);
         }
         return SingletonComponentInstances.board;
     }
