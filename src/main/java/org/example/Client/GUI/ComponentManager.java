@@ -29,7 +29,7 @@ public class ComponentManager {
 
             public void setField(TicTacToeGame.Turn turn) {
                 if(this.getComponentCount() == 0) {
-                    char content = turn == TicTacToeGame.Turn.Player_X ? 'X' : 'O';
+                    String content = turn == TicTacToeGame.Turn.Player_X ? "X" : "O";
                     this.add(new JTextField(content));
                 }
             }

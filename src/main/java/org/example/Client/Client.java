@@ -18,24 +18,6 @@ public class Client {
     private static TicTacToeGame game = new TicTacToeGame();
 
     public static void main(String[] args) {
-//        try {
-//            connectToTheServer();
-//            startGame();
-//            while(true) {
-//                processTurn();
-//            }
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                if (out != null) out.close();
-//                if (in != null) in.close();
-//                if (socket != null) socket.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
         ComponentManager.MainFrame().setVisible(true);
     }
 
