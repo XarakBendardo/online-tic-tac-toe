@@ -1,5 +1,6 @@
 package org.example.Client.GUI;
 
+import org.example.Client.ServerCommunicationTasks;
 import org.example.Game.TicTacToeGameForClient;
 
 import java.awt.event.ActionListener;
@@ -16,14 +17,15 @@ public class Listeners {
             boardMouseListener = new MouseListener() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    if(e.getSource() instanceof ComponentManager.GUIBoardField field) {
-                        if(TicTacToeGameForClient.getInstance().setField(field.getCordX(), field.getCordY())) {
-                            field.setField(TicTacToeGameForClient.getInstance().getTurn());
-                            field.revalidate();
-                            field.repaint();
+                    if(!(e.getSource() instanceof ComponentManager.GUIBoardField field)) return;
+                    if(TicTacToeGameForClient.getInstance().getTurn() != TicTacToeGameForClient.getInstance().getPlayersSymbol()) return;
 
-                            TicTacToeGameForClient.getInstance().changeTurn();
-                        }
+                    if(TicTacToeGameForClient.getInstance().setField(field.getCordX(), field.getCordY())) {
+                        field.setField(TicTacToeGameForClient.getInstance().getPlayersSymbol());
+                        field.revalidate();
+                        field.repaint();
+
+                        TicTacToeGameForClient.getInstance().changeTurn();
                     }
                 }
 
@@ -53,10 +55,8 @@ public class Listeners {
     public static ActionListener PlayMenuButtonListener() {
         if(playMenuButtonListener == null) {
             playMenuButtonListener = e -> {
-                ComponentManager.MainFrame().setContentPane(ComponentManager.Board());
-                ComponentManager.MainFrame().pack();
-                ComponentManager.MainFrame().revalidate();
-                ComponentManager.MainFrame().repaint();
+                ComponentManager.switchMainFrameContentPane(ComponentManager.WaitingPanel());
+                new Thread(new ServerCommunicationTasks.GameInitializer()).start();
             };
         }
         return playMenuButtonListener;

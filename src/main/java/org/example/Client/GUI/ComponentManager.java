@@ -57,6 +57,13 @@ public class ComponentManager {
         return SingletonComponentInstances.mainFrame;
     }
 
+    public static void switchMainFrameContentPane(final JPanel newCP) {
+        ComponentManager.MainFrame().setContentPane(newCP);
+        ComponentManager.MainFrame().pack();
+        ComponentManager.MainFrame().revalidate();
+        ComponentManager.MainFrame().repaint();
+    }
+
     static JPanel MainMenu() {
         if(SingletonComponentInstances.mainMenu == null) {
             SingletonComponentInstances.mainMenu = new JPanel();
@@ -86,7 +93,14 @@ public class ComponentManager {
         return button;
     }
 
-    static JPanel Board() {
+    static JPanel WaitingPanel() {
+        var panel = new JPanel();
+        panel.setPreferredSize(MENU_PREFERRED_SIZE);
+        panel.add(new JLabel("Please wait..."));
+        return panel;
+    }
+
+    public static JPanel Board() {
         if(SingletonComponentInstances.board == null) {
             SingletonComponentInstances.board = new JPanel();
             GUIBoardField field;
