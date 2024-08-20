@@ -41,11 +41,11 @@ public class ServerCommunicationManager {
     private static void initializeGame() {
         try {
             ComponentManager.switchMainFrameContentPane(ComponentManager.WaitingPanel("Waiting for an opponent..."));
-            String response = in.readLine(), playersSymbol;
+            String response = CommandManager.receive(in), playersSymbol;
             if(!response.equals(CommandManager.SERVER_START_GAME)) {
                 throw new IOException("Unexpected response from server: " + response);
             }
-            playersSymbol = in.readLine();
+            playersSymbol = CommandManager.receive(in);
             TicTacToeGameForClient.initInstance(
                     playersSymbol.equals("X") ? TicTacToeGame.Turn.Player_X : TicTacToeGame.Turn.Player_O
             );

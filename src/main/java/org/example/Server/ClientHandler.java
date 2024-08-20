@@ -70,25 +70,25 @@ public class ClientHandler extends Thread {
     }
 
     private void startGame() throws IOException {
-        CommandManager.sendCommand(this.activeOut, CommandManager.SERVER_START_GAME, "X");
+        CommandManager.send(this.activeOut, CommandManager.SERVER_START_GAME, "X");
         System.out.println("Send to first player");
-        CommandManager.sendCommand(this.inactiveOut, CommandManager.SERVER_START_GAME, "O");
+        CommandManager.send(this.inactiveOut, CommandManager.SERVER_START_GAME, "O");
         System.out.println("Send to second player");
     }
 
     private void processTurn() throws IOException {
-        String command = this.activeIn.readLine();
+        String command = CommandManager.receive(this.activeIn);
         if(command == null) {
             throw new IOException("Connection closed");
         }
         System.out.println("Command: " + command);
         switch (command) {
             case CommandManager.CLIENT_MOVE -> {
-                String move = this.activeIn.readLine();
+                String move = CommandManager.receive(this.activeIn);
                 System.out.println("Move: " + move);
                 this.game.setField(Integer.parseInt(move.substring(0, 1)), Integer.parseInt(move.substring(1, 2)));
-                CommandManager.sendCommand(this.activeOut, CommandManager.SERVER_OK);
-                CommandManager.sendCommand(this.inactiveOut, CommandManager.CLIENT_MOVE, move);
+                CommandManager.send(this.activeOut, CommandManager.SERVER_OK);
+                CommandManager.send(this.inactiveOut, CommandManager.CLIENT_MOVE, move);
             }
             default -> throw new IOException("Invalid command: " + command);
         }
