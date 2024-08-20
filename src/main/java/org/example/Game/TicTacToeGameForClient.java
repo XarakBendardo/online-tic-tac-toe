@@ -16,6 +16,7 @@ public class TicTacToeGameForClient extends TicTacToeGame {
     public static void initInstance(final Turn playersSymbol) {
         if(instance == null)
             instance = new TicTacToeGameForClient(playersSymbol);
+        System.out.println(playersSymbol);
     }
 
     public static TicTacToeGameForClient getInstance() {

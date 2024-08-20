@@ -1,6 +1,6 @@
 package org.example.Client.GUI;
 
-import org.example.Client.ServerCommunicationTasks;
+import org.example.Client.ServerCommunicationManager;
 import org.example.Game.TicTacToeGameForClient;
 
 import java.awt.event.ActionListener;
@@ -54,10 +54,7 @@ public class Listeners {
 
     public static ActionListener PlayMenuButtonListener() {
         if(playMenuButtonListener == null) {
-            playMenuButtonListener = e -> {
-                ComponentManager.switchMainFrameContentPane(ComponentManager.WaitingPanel());
-                new Thread(new ServerCommunicationTasks.GameInitializer()).start();
-            };
+            playMenuButtonListener = e -> ServerCommunicationManager.startGame();
         }
         return playMenuButtonListener;
     }

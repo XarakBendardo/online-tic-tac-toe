@@ -64,7 +64,7 @@ public class ComponentManager {
         ComponentManager.MainFrame().repaint();
     }
 
-    static JPanel MainMenu() {
+    public static JPanel MainMenu() {
         if(SingletonComponentInstances.mainMenu == null) {
             SingletonComponentInstances.mainMenu = new JPanel();
             SingletonComponentInstances.mainMenu.setPreferredSize(MENU_PREFERRED_SIZE);
@@ -75,28 +75,28 @@ public class ComponentManager {
         }
         return SingletonComponentInstances.mainMenu;
     }
-    static JButton MenuButton(String text) {
+    public static JButton MenuButton(String text) {
         var button = new JButton(text);
         button.setPreferredSize(MENU_BUTTON_PREFERRED_SIZE);
         return button;
     }
 
-    static JButton PlayMenuButton() {
+    public static JButton PlayMenuButton() {
         var button = MenuButton("PLAY");
         button.addActionListener(Listeners.PlayMenuButtonListener());
         return button;
     }
 
-    static JButton ExitMenuButton() {
+    public static JButton ExitMenuButton() {
         var button = MenuButton("EXIT");
         button.addActionListener(Listeners.ExitMenuButtonListener());
         return button;
     }
 
-    static JPanel WaitingPanel() {
+    public static JPanel WaitingPanel(final String prompt) {
         var panel = new JPanel();
         panel.setPreferredSize(MENU_PREFERRED_SIZE);
-        panel.add(new JLabel("Please wait..."));
+        panel.add(new JLabel(prompt));
         return panel;
     }
 
