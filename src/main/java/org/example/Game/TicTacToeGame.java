@@ -59,5 +59,4 @@ public class TicTacToeGame {
         }
         return false;
     }
-    public String getBoardAsString() {return this.board.toString();}
 }

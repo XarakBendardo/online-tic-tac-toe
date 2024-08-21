@@ -87,7 +87,6 @@ public class ClientHandler extends Thread {
                 String move = CommandManager.receive(this.activeIn);
                 System.out.println("Move: " + move);
                 this.game.setField(Integer.parseInt(move.substring(0, 1)), Integer.parseInt(move.substring(1, 2)));
-                CommandManager.send(this.activeOut, CommandManager.SERVER_OK);
                 CommandManager.send(this.inactiveOut, CommandManager.CLIENT_MOVE, move);
             }
             default -> throw new IOException("Invalid command: " + command);

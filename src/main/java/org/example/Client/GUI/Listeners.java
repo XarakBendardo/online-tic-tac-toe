@@ -20,12 +20,15 @@ public class Listeners {
                     if(!(e.getSource() instanceof ComponentManager.GUIBoardField field)) return;
                     if(TicTacToeGameForClient.getInstance().getTurn() != TicTacToeGameForClient.getInstance().getPlayersSymbol()) return;
 
-                    if(TicTacToeGameForClient.getInstance().setField(field.getCordX(), field.getCordY())) {
+                    int x = field.getCordX(), y = field.getCordY();
+                    if(TicTacToeGameForClient.getInstance().setField(x, y)) {
                         field.setField(TicTacToeGameForClient.getInstance().getPlayersSymbol());
                         field.revalidate();
                         field.repaint();
 
                         TicTacToeGameForClient.getInstance().changeTurn();
+
+                        ServerCommunicationManager.sendMove(x, y);
                     }
                 }
 

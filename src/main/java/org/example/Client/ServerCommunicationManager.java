@@ -22,7 +22,6 @@ public class ServerCommunicationManager {
             if (in != null) in.close();
         } catch (IOException e) {
             System.out.println("Failure resources closure");
-            e.printStackTrace();
         }
     }
 
@@ -34,7 +33,6 @@ public class ServerCommunicationManager {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } catch (IOException e) {
             System.out.println("Failure during server connection set up");
-            e.printStackTrace();
             closeResources();
         }
     }
@@ -50,9 +48,11 @@ public class ServerCommunicationManager {
                     playersSymbol.equals("X") ? TicTacToeGame.Turn.Player_X : TicTacToeGame.Turn.Player_O
             );
             ComponentManager.switchMainFrameContentPane(ComponentManager.Board());
+            if(TicTacToeGameForClient.getInstance().getTurn() != TicTacToeGameForClient.getInstance().getPlayersSymbol()) {
+                waitForOpponentsMove();
+            }
         } catch (IOException e) {
             System.out.println("Failure during game initialization");
-            e.printStackTrace();
             closeResources();
         }
     }
@@ -61,6 +61,23 @@ public class ServerCommunicationManager {
         new Thread(() -> {
             connectToTheServer();
             initializeGame();
+        }).start();
+    }
+
+    public static void sendMove(final int x, final int y) {
+        new Thread(() -> {
+            try {
+                CommandManager.send(out, CommandManager.CLIENT_MOVE, String.valueOf(x) + y);
+            } catch (IOException e) {
+                System.out.println("Failure during sending a move");
+            }
+        }).start();
+    }
+
+    public static void waitForOpponentsMove() {
+        new Thread(() -> {
+            String response = CommandManager.receive(in);
+            System.out.println(response);
         }).start();
     }
 }
