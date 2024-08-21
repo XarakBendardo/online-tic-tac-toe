@@ -5,6 +5,7 @@ import org.example.Networking.TicTacToeProtocol;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class ClientHandler extends Thread {
 
@@ -76,29 +77,28 @@ public class ClientHandler extends Thread {
         );
         System.out.println("Send to first player");
         TicTacToeProtocol.send(
-                this.activeOut,
+                this.inactiveOut,
                 TicTacToeProtocol.ProtocolEntity.of(TicTacToeProtocol.Commands.SERVER_START_GAME, "O")
         );
         System.out.println("Send to second player");
     }
 
     private void processTurn() throws IOException {
-        String command = TicTacToeProtocol.receive(this.activeIn);
-        if(command == null) {
-            throw new IOException("Connection closed");
-        }
-        System.out.println("Command: " + command);
-        switch (command) {
+        var protocolEntity = TicTacToeProtocol.receive(this.activeIn);
+        System.out.println("Command: " + protocolEntity.getCommand());
+        switch (protocolEntity.getCommand()) {
             case TicTacToeProtocol.Commands.CLIENT_MOVE -> {
-                String move = TicTacToeProtocol.receive(this.activeIn);
-                System.out.println("Move: " + move);
-                this.game.setField(Integer.parseInt(move.substring(0, 1)), Integer.parseInt(move.substring(1, 2)));
+                System.out.println("Move: " + Arrays.toString(protocolEntity.getArgs()));
+                this.game.setField(
+                        Integer.parseInt(protocolEntity.getArgs()[0]),
+                        Integer.parseInt(protocolEntity.getArgs()[1])
+                );
                 TicTacToeProtocol.send(
                         this.activeOut,
-                        TicTacToeProtocol.ProtocolEntity.of(TicTacToeProtocol.Commands.CLIENT_MOVE, move)
+                        TicTacToeProtocol.ProtocolEntity.of(TicTacToeProtocol.Commands.CLIENT_MOVE, protocolEntity.getArgs())
                 );
             }
-            default -> throw new IOException("Invalid command: " + command);
+            default -> throw new IOException("Invalid command: " + protocolEntity.getCommand());
         }
         this.changeTurn();
     }

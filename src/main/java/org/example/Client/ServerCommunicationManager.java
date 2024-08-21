@@ -37,24 +37,15 @@ public class ServerCommunicationManager {
         }
     }
     private static void initializeGame() {
-        try {
-            ComponentManager.switchMainFrameContentPane(ComponentManager.WaitingPanel("Waiting for an opponent..."));
-            String response = TicTacToeProtocol.receive(in), playersSymbol;
-            if(!response.equals(TicTacToeProtocol.Commands.SERVER_START_GAME)) {
-                throw new IOException("Unexpected response from server: " + response);
-            }
-            playersSymbol = TicTacToeProtocol.receive(in);
-            TicTacToeGameForClient.initInstance(
-                    playersSymbol.equals("X") ? TicTacToeGame.Turn.Player_X : TicTacToeGame.Turn.Player_O
-            );
-            ComponentManager.switchMainFrameContentPane(ComponentManager.Board());
-            if(TicTacToeGameForClient.getInstance().getTurn() != TicTacToeGameForClient.getInstance().getPlayersSymbol()) {
-                waitForOpponentsMove();
-            }
-        } catch (IOException e) {
-            System.out.println("Failure during game initialization");
-            closeResources();
-        }
+        ComponentManager.switchMainFrameContentPane(ComponentManager.WaitingPanel("Waiting for an opponent..."));
+        TicTacToeProtocol.ProtocolEntity response = TicTacToeProtocol.receive(in);
+        TicTacToeGameForClient.initInstance(
+                response.getArgs()[0].equals("X") ? TicTacToeGame.Turn.Player_X : TicTacToeGame.Turn.Player_O
+        );
+        ComponentManager.switchMainFrameContentPane(ComponentManager.Board());
+//        if(TicTacToeGameForClient.getInstance().getTurn() != TicTacToeGameForClient.getInstance().getPlayersSymbol()) {
+//            waitForOpponentsMove();
+//        }
     }
 
     public static void startGame() {
@@ -69,7 +60,7 @@ public class ServerCommunicationManager {
             try {
                 TicTacToeProtocol.send(
                         out,
-                        TicTacToeProtocol.ProtocolEntity.of(TicTacToeProtocol.Commands.CLIENT_MOVE, String.valueOf(x) + y)
+                        TicTacToeProtocol.ProtocolEntity.of(TicTacToeProtocol.Commands.CLIENT_MOVE, String.valueOf(x), String.valueOf(y))
                 );
             } catch (IOException e) {
                 System.out.println("Failure during sending a move");
@@ -79,8 +70,8 @@ public class ServerCommunicationManager {
 
     public static void waitForOpponentsMove() {
         new Thread(() -> {
-            String response = TicTacToeProtocol.receive(in);
-            System.out.println(response);
+            TicTacToeProtocol.ProtocolEntity response = TicTacToeProtocol.receive(in);
+            System.out.println("Response: " + response);
         }).start();
     }
 }

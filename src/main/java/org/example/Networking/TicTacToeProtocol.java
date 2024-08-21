@@ -39,6 +39,7 @@ public class TicTacToeProtocol {
                     builder.append(TicTacToeProtocol.SEPARATOR).append(arg);
                 }
             }
+            builder.append("\n");
             return builder.toString();
         }
 
@@ -64,12 +65,14 @@ public class TicTacToeProtocol {
         out.flush();
     }
 
-    public static String receive(final BufferedReader in) {
+    public static ProtocolEntity receive(final BufferedReader in) {
         try {
-            return in.readLine();
+            String rawData = in.readLine();
+            System.out.println(rawData);
+            return ProtocolEntity.of(rawData);
         } catch (IOException e) {
             e.printStackTrace();
-            return "";
+            throw new RuntimeException();
         }
     }
 }
