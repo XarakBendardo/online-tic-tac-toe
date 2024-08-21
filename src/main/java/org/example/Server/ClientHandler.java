@@ -1,7 +1,7 @@
 package org.example.Server;
 
 import org.example.Game.TicTacToeGame;
-import org.example.Networking.CommandManager;
+import org.example.Networking.TicTacToeProtocol;
 
 import java.io.*;
 import java.net.Socket;
@@ -70,24 +70,33 @@ public class ClientHandler extends Thread {
     }
 
     private void startGame() throws IOException {
-        CommandManager.send(this.activeOut, CommandManager.SERVER_START_GAME, "X");
+        TicTacToeProtocol.send(
+                this.activeOut,
+                TicTacToeProtocol.ProtocolEntity.of(TicTacToeProtocol.Commands.SERVER_START_GAME, "X")
+        );
         System.out.println("Send to first player");
-        CommandManager.send(this.inactiveOut, CommandManager.SERVER_START_GAME, "O");
+        TicTacToeProtocol.send(
+                this.activeOut,
+                TicTacToeProtocol.ProtocolEntity.of(TicTacToeProtocol.Commands.SERVER_START_GAME, "O")
+        );
         System.out.println("Send to second player");
     }
 
     private void processTurn() throws IOException {
-        String command = CommandManager.receive(this.activeIn);
+        String command = TicTacToeProtocol.receive(this.activeIn);
         if(command == null) {
             throw new IOException("Connection closed");
         }
         System.out.println("Command: " + command);
         switch (command) {
-            case CommandManager.CLIENT_MOVE -> {
-                String move = CommandManager.receive(this.activeIn);
+            case TicTacToeProtocol.Commands.CLIENT_MOVE -> {
+                String move = TicTacToeProtocol.receive(this.activeIn);
                 System.out.println("Move: " + move);
                 this.game.setField(Integer.parseInt(move.substring(0, 1)), Integer.parseInt(move.substring(1, 2)));
-                CommandManager.send(this.inactiveOut, CommandManager.CLIENT_MOVE, move);
+                TicTacToeProtocol.send(
+                        this.activeOut,
+                        TicTacToeProtocol.ProtocolEntity.of(TicTacToeProtocol.Commands.CLIENT_MOVE, move)
+                );
             }
             default -> throw new IOException("Invalid command: " + command);
         }

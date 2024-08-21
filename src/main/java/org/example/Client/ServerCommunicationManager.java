@@ -3,7 +3,7 @@ package org.example.Client;
 import org.example.Client.GUI.ComponentManager;
 import org.example.Game.TicTacToeGame;
 import org.example.Game.TicTacToeGameForClient;
-import org.example.Networking.CommandManager;
+import org.example.Networking.TicTacToeProtocol;
 import org.example.Networking.NetworkInfo;
 
 import java.io.*;
@@ -39,11 +39,11 @@ public class ServerCommunicationManager {
     private static void initializeGame() {
         try {
             ComponentManager.switchMainFrameContentPane(ComponentManager.WaitingPanel("Waiting for an opponent..."));
-            String response = CommandManager.receive(in), playersSymbol;
-            if(!response.equals(CommandManager.SERVER_START_GAME)) {
+            String response = TicTacToeProtocol.receive(in), playersSymbol;
+            if(!response.equals(TicTacToeProtocol.Commands.SERVER_START_GAME)) {
                 throw new IOException("Unexpected response from server: " + response);
             }
-            playersSymbol = CommandManager.receive(in);
+            playersSymbol = TicTacToeProtocol.receive(in);
             TicTacToeGameForClient.initInstance(
                     playersSymbol.equals("X") ? TicTacToeGame.Turn.Player_X : TicTacToeGame.Turn.Player_O
             );
@@ -67,7 +67,10 @@ public class ServerCommunicationManager {
     public static void sendMove(final int x, final int y) {
         new Thread(() -> {
             try {
-                CommandManager.send(out, CommandManager.CLIENT_MOVE, String.valueOf(x) + y);
+                TicTacToeProtocol.send(
+                        out,
+                        TicTacToeProtocol.ProtocolEntity.of(TicTacToeProtocol.Commands.CLIENT_MOVE, String.valueOf(x) + y)
+                );
             } catch (IOException e) {
                 System.out.println("Failure during sending a move");
             }
@@ -76,7 +79,7 @@ public class ServerCommunicationManager {
 
     public static void waitForOpponentsMove() {
         new Thread(() -> {
-            String response = CommandManager.receive(in);
+            String response = TicTacToeProtocol.receive(in);
             System.out.println(response);
         }).start();
     }
