@@ -43,9 +43,9 @@ public class ServerCommunicationManager {
                 response.getArgs()[0].equals("X") ? TicTacToeGame.Turn.Player_X : TicTacToeGame.Turn.Player_O
         );
         ComponentManager.switchMainFrameContentPane(ComponentManager.Board());
-//        if(TicTacToeGameForClient.getInstance().getTurn() != TicTacToeGameForClient.getInstance().getPlayersSymbol()) {
-//            waitForOpponentsMove();
-//        }
+        if(TicTacToeGameForClient.getInstance().getTurn() != TicTacToeGameForClient.getInstance().getPlayersSymbol()) {
+            waitForOpponentsMove();
+        }
     }
 
     public static void startGame() {

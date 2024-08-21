@@ -94,7 +94,7 @@ public class ClientHandler extends Thread {
                         Integer.parseInt(protocolEntity.getArgs()[1])
                 );
                 TicTacToeProtocol.send(
-                        this.activeOut,
+                        this.inactiveOut,
                         TicTacToeProtocol.ProtocolEntity.of(TicTacToeProtocol.Commands.CLIENT_MOVE, protocolEntity.getArgs())
                 );
             }

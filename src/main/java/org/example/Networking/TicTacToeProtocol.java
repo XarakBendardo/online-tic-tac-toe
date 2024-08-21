@@ -39,7 +39,6 @@ public class TicTacToeProtocol {
                     builder.append(TicTacToeProtocol.SEPARATOR).append(arg);
                 }
             }
-            builder.append("\n");
             return builder.toString();
         }
 
@@ -67,9 +66,7 @@ public class TicTacToeProtocol {
 
     public static ProtocolEntity receive(final BufferedReader in) {
         try {
-            String rawData = in.readLine();
-            System.out.println(rawData);
-            return ProtocolEntity.of(rawData);
+            return ProtocolEntity.of(in.readLine());
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException();
