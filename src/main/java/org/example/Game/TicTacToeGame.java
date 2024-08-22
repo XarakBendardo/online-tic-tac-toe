@@ -3,6 +3,7 @@ package org.example.Game;
 import java.util.Map;
 
 public class TicTacToeGame {
+
     public static class Board {
         public static final int SIZE = 3;
         public enum Field {X, O, EMPTY}
@@ -65,5 +66,32 @@ public class TicTacToeGame {
             return true;
         }
         return false;
+    }
+
+    public Board.Field checkWinner() {
+        // horizontally
+        for(var y = 0; y < Board.SIZE; ++y) {
+            if(this.board.fields[y][0] == this.board.fields[y][1] && this.board.fields[y][1] == this.board.fields[y][2]) {
+                return board.fields[y][0];
+            }
+        }
+
+        // vertically
+        for(var x = 0; x < Board.SIZE; ++x) {
+            if(this.board.fields[0][x] == this.board.fields[1][x] && this.board.fields[1][x] == this.board.fields[2][x]) {
+                return board.fields[0][x];
+            }
+        }
+
+        // diagonally
+        if(this.board.fields[0][0] == this.board.fields[1][1] && this.board.fields[1][1] == this.board.fields[2][2]) {
+            return this.board.fields[0][0];
+        }
+
+        if(this.board.fields[2][0] == this.board.fields[1][1] && this.board.fields[1][1] == this.board.fields[0][2]) {
+            return this.board.fields[2][0];
+        }
+
+        return Board.Field.EMPTY;
     }
 }

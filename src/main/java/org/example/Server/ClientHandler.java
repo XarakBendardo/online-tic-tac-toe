@@ -93,10 +93,7 @@ public class ClientHandler extends Thread {
                         Integer.parseInt(protocolEntity.getArgs()[0]),
                         Integer.parseInt(protocolEntity.getArgs()[1])
                 );
-                TicTacToeProtocol.send(
-                        this.inactiveOut,
-                        TicTacToeProtocol.ProtocolEntity.of(TicTacToeProtocol.Commands.CLIENT_MOVE, protocolEntity.getArgs())
-                );
+                TicTacToeProtocol.send(this.inactiveOut, protocolEntity);
             }
             default -> throw new IOException("Invalid command: " + protocolEntity.getCommand());
         }
