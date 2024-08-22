@@ -45,14 +45,7 @@ public class ServerCommunicationManager {
         );
         ComponentManager.switchMainFrameContentPane(ComponentManager.Board());
         if(TicTacToeGameForClient.getInstance().getTurn() != TicTacToeGameForClient.getInstance().getPlayersSymbol()) {
-            var coords = getOpponentsMove();
-            ComponentManager.Board().setField(
-                    coords.first(),
-                    coords.second(),
-                    TicTacToeGameForClient.getInstance().getOpponentsSymbol().toString()
-            );
-            TicTacToeGameForClient.getInstance().setField(coords.first(), coords.second());
-            TicTacToeGameForClient.getInstance().changeTurn();
+            waitForOpponentsMove();
         }
     }
 
@@ -72,12 +65,18 @@ public class ServerCommunicationManager {
         }
     }
 
-    public static Tuple<Integer, Integer> getOpponentsMove() {
+    public static void waitForOpponentsMove() {
         TicTacToeProtocol.ProtocolEntity response = TicTacToeProtocol.receive(in);
-        System.out.println("AAAA");
-        return Tuple.of(
+        var coords = Tuple.of(
             Integer.parseInt(response.getArgs()[0]),
             Integer.parseInt(response.getArgs()[1])
         );
+        ComponentManager.Board().setField(
+                coords.first(),
+                coords.second(),
+                TicTacToeGameForClient.getInstance().getOpponentsSymbol().toString()
+        );
+        TicTacToeGameForClient.getInstance().setField(coords.first(), coords.second());
+        TicTacToeGameForClient.getInstance().changeTurn();
     }
 }

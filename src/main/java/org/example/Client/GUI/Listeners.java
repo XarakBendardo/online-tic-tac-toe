@@ -33,14 +33,7 @@ public class Listeners {
 
                         ThreadManager.runInNewThread(() -> {
                             ServerCommunicationManager.sendMove(x, y);
-                            var coords = ServerCommunicationManager.getOpponentsMove();
-                            ComponentManager.Board().setField(
-                                    coords.first(),
-                                    coords.second(),
-                                    TicTacToeGameForClient.getInstance().getOpponentsSymbol().toString()
-                            );
-                            TicTacToeGameForClient.getInstance().setField(coords.first(), coords.second());
-                            TicTacToeGameForClient.getInstance().changeTurn();
+                            ServerCommunicationManager.waitForOpponentsMove();
                         });
                     }
                 }
