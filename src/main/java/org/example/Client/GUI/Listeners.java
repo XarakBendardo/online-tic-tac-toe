@@ -31,7 +31,7 @@ public class Listeners {
 
                         ThreadManager.runInNewThread(() -> {
                             ServerCommunicationManager.sendMove(x, y);
-                            ServerCommunicationManager.waitForOpponentsMove();
+                            var coords = ServerCommunicationManager.getOpponentsMove();
                         });
                     }
                 }

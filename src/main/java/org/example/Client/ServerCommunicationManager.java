@@ -5,6 +5,7 @@ import org.example.Game.TicTacToeGame;
 import org.example.Game.TicTacToeGameForClient;
 import org.example.Networking.TicTacToeProtocol;
 import org.example.Networking.NetworkInfo;
+import org.example.utills.Tuple;
 
 import java.io.*;
 import java.net.Socket;
@@ -44,7 +45,7 @@ public class ServerCommunicationManager {
         );
         ComponentManager.switchMainFrameContentPane(ComponentManager.Board());
         if(TicTacToeGameForClient.getInstance().getTurn() != TicTacToeGameForClient.getInstance().getPlayersSymbol()) {
-            waitForOpponentsMove();
+            getOpponentsMove();
         }
     }
 
@@ -64,8 +65,12 @@ public class ServerCommunicationManager {
         }
     }
 
-    public static void waitForOpponentsMove() {
+    public static Tuple<Integer, Integer> getOpponentsMove() {
         TicTacToeProtocol.ProtocolEntity response = TicTacToeProtocol.receive(in);
-        System.out.println("Response: " + response);
+        System.out.println("AAAA");
+        return Tuple.of(
+            Integer.parseInt(response.getArgs()[0]),
+            Integer.parseInt(response.getArgs()[1])
+        );
     }
 }
