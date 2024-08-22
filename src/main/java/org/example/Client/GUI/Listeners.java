@@ -1,6 +1,7 @@
 package org.example.Client.GUI;
 
 import org.example.Client.ServerCommunicationManager;
+import org.example.Client.ThreadManager;
 import org.example.Game.TicTacToeGameForClient;
 
 import java.awt.event.ActionListener;
@@ -28,7 +29,10 @@ public class Listeners {
 
                         TicTacToeGameForClient.getInstance().changeTurn();
 
-                        ServerCommunicationManager.sendMove(x, y);
+                        ThreadManager.runInNewThread(() -> {
+                            ServerCommunicationManager.sendMove(x, y);
+                            ServerCommunicationManager.waitForOpponentsMove();
+                        });
                     }
                 }
 
@@ -57,7 +61,9 @@ public class Listeners {
 
     public static ActionListener PlayMenuButtonListener() {
         if(playMenuButtonListener == null) {
-            playMenuButtonListener = e -> ServerCommunicationManager.startGame();
+            playMenuButtonListener = e -> {
+                ThreadManager.runInNewThread(ServerCommunicationManager::startGame);
+            };
         }
         return playMenuButtonListener;
     }

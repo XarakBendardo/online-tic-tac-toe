@@ -49,29 +49,23 @@ public class ServerCommunicationManager {
     }
 
     public static void startGame() {
-        new Thread(() -> {
-            connectToTheServer();
-            initializeGame();
-        }).start();
+        connectToTheServer();
+        initializeGame();
     }
 
     public static void sendMove(final int x, final int y) {
-        new Thread(() -> {
-            try {
-                TicTacToeProtocol.send(
-                        out,
-                        TicTacToeProtocol.ProtocolEntity.of(TicTacToeProtocol.Commands.CLIENT_MOVE, String.valueOf(x), String.valueOf(y))
-                );
-            } catch (IOException e) {
-                System.out.println("Failure during sending a move");
-            }
-        }).start();
+        try {
+            TicTacToeProtocol.send(
+                out,
+                TicTacToeProtocol.ProtocolEntity.of(TicTacToeProtocol.Commands.CLIENT_MOVE, String.valueOf(x), String.valueOf(y))
+            );
+        } catch (IOException e) {
+            System.out.println("Failure during sending a move");
+        }
     }
 
     public static void waitForOpponentsMove() {
-        new Thread(() -> {
-            TicTacToeProtocol.ProtocolEntity response = TicTacToeProtocol.receive(in);
-            System.out.println("Response: " + response);
-        }).start();
+        TicTacToeProtocol.ProtocolEntity response = TicTacToeProtocol.receive(in);
+        System.out.println("Response: " + response);
     }
 }
