@@ -14,36 +14,63 @@ public class ComponentManager {
     private static final Dimension BOARD_PREFERRED_SIZE = new Dimension(800, 800);
     private static final Dimension BOARD_FIELD_PREFERRED_SIZE = new Dimension(200, 200);
 
-    static class GUIBoardField extends JPanel {
-        private final int cordX;
-        private final int cordY;
-        private GUIBoardField(int x, int y) {
-            super();
-            this.setPreferredSize(BOARD_FIELD_PREFERRED_SIZE);
-            this.cordX = x;
-            this.cordY = y;
-        }
+    public static class GUIBoard extends JPanel {
+        static class GUIBoardField extends JPanel {
+            private final int cordX;
+            private final int cordY;
 
-        public void setField(TicTacToeGame.Turn turn) {
-            if(this.getComponentCount() == 0) {
-                String content = turn == TicTacToeGame.Turn.Player_X ? "X" : "O";
-                this.add(new JTextField(content));
+            private GUIBoardField(int x, int y) {
+                super();
+                this.setPreferredSize(BOARD_FIELD_PREFERRED_SIZE);
+                this.cordX = x;
+                this.cordY = y;
+            }
+
+            public void setField(final String content) {
+                if (this.getComponentCount() == 0) {
+                    this.add(new JTextField(content));
+                }
+            }
+
+            public int getCordX() {
+                return cordX;
+            }
+
+            public int getCordY() {
+                return cordY;
             }
         }
 
-        public int getCordX() {
-            return cordX;
+        private final GUIBoardField[][] fields;
+
+        public GUIBoard() {
+            super();
+
+            this.fields = new GUIBoardField[TicTacToeGame.Board.SIZE][TicTacToeGame.Board.SIZE];
+            GUIBoardField field;
+            for(int y = 0; y < TicTacToeGame.Board.SIZE; ++y) {
+                for(int x = 0; x < TicTacToeGame.Board.SIZE; ++x) {
+                    field = new GUIBoard.GUIBoardField(x, y);
+                    field.addMouseListener(Listeners.BoardMouseListener());
+                    this.add(field);
+                    this.fields[y][x] = field;
+                }
+            }
+            this.setLayout(new GridLayout(TicTacToeGame.Board.SIZE, TicTacToeGame.Board.SIZE, 40, 40));
+            this.setBackground(Color.BLACK);
         }
 
-        public int getCordY() {
-            return cordY;
+        public void setField(final int x, final int y, final String content) {
+            this.fields[y][x].setField(content);
+            this.fields[y][x].revalidate();
+            this.fields[y][x].repaint();
         }
     }
 
     private static class SingletonComponentInstances {
         public static JFrame mainFrame = null;
         public static JPanel mainMenu = null;
-        public static JPanel board = null;
+        public static GUIBoard board = null;
     }
 
     public static JFrame MainFrame() {
@@ -100,19 +127,9 @@ public class ComponentManager {
         return panel;
     }
 
-    public static JPanel Board() {
+    public static GUIBoard Board() {
         if(SingletonComponentInstances.board == null) {
-            SingletonComponentInstances.board = new JPanel();
-            GUIBoardField field;
-            for(int y = 0; y < TicTacToeGame.Board.SIZE; ++y) {
-                for(int x = 0; x < TicTacToeGame.Board.SIZE; ++x) {
-                    field = new GUIBoardField(x, y);
-                    field.addMouseListener(Listeners.BoardMouseListener());
-                    SingletonComponentInstances.board.add(field);
-                }
-            }
-            SingletonComponentInstances.board.setLayout(new GridLayout(TicTacToeGame.Board.SIZE, TicTacToeGame.Board.SIZE, 40, 40));
-            SingletonComponentInstances.board.setBackground(Color.BLACK);
+            SingletonComponentInstances.board = new GUIBoard();
         }
         return SingletonComponentInstances.board;
     }

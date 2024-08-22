@@ -45,7 +45,14 @@ public class ServerCommunicationManager {
         );
         ComponentManager.switchMainFrameContentPane(ComponentManager.Board());
         if(TicTacToeGameForClient.getInstance().getTurn() != TicTacToeGameForClient.getInstance().getPlayersSymbol()) {
-            getOpponentsMove();
+            var coords = getOpponentsMove();
+            ComponentManager.Board().setField(
+                    coords.first(),
+                    coords.second(),
+                    TicTacToeGameForClient.getInstance().getOpponentsSymbol().toString()
+            );
+            TicTacToeGameForClient.getInstance().setField(coords.first(), coords.second());
+            TicTacToeGameForClient.getInstance().changeTurn();
         }
     }
 

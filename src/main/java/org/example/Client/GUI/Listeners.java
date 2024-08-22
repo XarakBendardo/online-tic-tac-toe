@@ -18,12 +18,14 @@ public class Listeners {
             boardMouseListener = new MouseListener() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    if(!(e.getSource() instanceof ComponentManager.GUIBoardField field)) return;
+                    if(!(e.getSource() instanceof ComponentManager.GUIBoard.GUIBoardField field)) return;
                     if(TicTacToeGameForClient.getInstance().getTurn() != TicTacToeGameForClient.getInstance().getPlayersSymbol()) return;
 
                     int x = field.getCordX(), y = field.getCordY();
                     if(TicTacToeGameForClient.getInstance().setField(x, y)) {
-                        field.setField(TicTacToeGameForClient.getInstance().getPlayersSymbol());
+                        field.setField(
+                                TicTacToeGameForClient.getInstance().getPlayersSymbol().toString()
+                        );
                         field.revalidate();
                         field.repaint();
 
@@ -32,6 +34,13 @@ public class Listeners {
                         ThreadManager.runInNewThread(() -> {
                             ServerCommunicationManager.sendMove(x, y);
                             var coords = ServerCommunicationManager.getOpponentsMove();
+                            ComponentManager.Board().setField(
+                                    coords.first(),
+                                    coords.second(),
+                                    TicTacToeGameForClient.getInstance().getOpponentsSymbol().toString()
+                            );
+                            TicTacToeGameForClient.getInstance().setField(coords.first(), coords.second());
+                            TicTacToeGameForClient.getInstance().changeTurn();
                         });
                     }
                 }

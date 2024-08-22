@@ -42,7 +42,14 @@ public class TicTacToeGame {
         }
     }
     private final Board board;
-    public enum Turn {Player_X, Player_O}
+    public enum Turn {
+        Player_X, Player_O;
+
+        @Override
+        public String toString() {
+            return this == Player_X ? "X" : "O";
+        }
+    }
     private Turn turn;
 
     public TicTacToeGame() {

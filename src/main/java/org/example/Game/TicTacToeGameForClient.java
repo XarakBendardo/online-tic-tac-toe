@@ -12,6 +12,7 @@ public class TicTacToeGameForClient extends TicTacToeGame {
     public Turn getPlayersSymbol() {
         return playersSymbol;
     }
+    public Turn getOpponentsSymbol() {return playersSymbol == Turn.Player_X ? Turn.Player_O : Turn.Player_X; }
 
     public static void initInstance(final Turn playersSymbol) {
         if(instance == null)
