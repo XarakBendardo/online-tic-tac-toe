@@ -14,13 +14,17 @@ public final class BoardPanel extends JPanel {
      * A graphical representation of a Tic Tac Toe field, in which X and O symbols can be put.
      */
     public static final class BoardPanelField extends JPanel {
-        public final int x, y;
+        public static final Dimension PREFERRED_SIZE = new Dimension(200, 200);
+        private final int x, y;
 
         /**
          * @param cordX - x coordinate on 3x3 Tic Tac Toe board
          * @param cordY - y coordinate on 3x3 Tic Tac Toe board
          */
         private BoardPanelField(final int cordX, final int cordY) {
+            super();
+            this.setPreferredSize(PREFERRED_SIZE);
+
             this.x = cordX;
             this.y = cordY;
         }

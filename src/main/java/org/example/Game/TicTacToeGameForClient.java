@@ -5,7 +5,7 @@ public class TicTacToeGameForClient extends TicTacToeGame {
 
     private static TicTacToeGameForClient instance = null;
 
-    private TicTacToeGameForClient(final Turn playersSymbol) {
+    public TicTacToeGameForClient(final Turn playersSymbol) {
         this.playersSymbol = playersSymbol;
     }
 

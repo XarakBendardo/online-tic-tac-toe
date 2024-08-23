@@ -12,7 +12,7 @@ public final class MainMenu extends JPanel {
     /**
      * Create a JPanel with fixed grid layout containing all buttons in a single column.
      */
-    MainMenu(JButton... buttons) {
+    public MainMenu(JButton... buttons) {
         super();
         this.setPreferredSize(PREFERRED_SIZE);
         for(final var button : buttons)

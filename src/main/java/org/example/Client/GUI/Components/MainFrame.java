@@ -25,6 +25,7 @@ public final class MainFrame extends JFrame {
      */
     public void changeContentPane(final JPanel contentPane) {
         this.setContentPane(contentPane);
+        this.pack();
         this.revalidate();
         this.repaint();
     }

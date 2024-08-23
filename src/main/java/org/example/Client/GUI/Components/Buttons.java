@@ -1,12 +1,15 @@
 package org.example.Client.GUI.Components;
 
 import javax.swing.*;
+import java.awt.event.ActionListener;
 
 /**
  * A factory class for creating customized buttons for main menu.
  */
 public class Buttons {
-    JButton of(final String text) {
-        return new JButton(text);
+    public static JButton of(final String text, final ActionListener listener) {
+        var button = new JButton(text);
+        button.addActionListener(listener);
+        return button;
     }
 }
