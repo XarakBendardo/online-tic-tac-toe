@@ -11,7 +11,6 @@ public class ComponentManager {
     private static final String MAIN_FRAME_NAME = "Tic Tac Toe";
     private static final Dimension MENU_BUTTON_PREFERRED_SIZE = new Dimension(200, 50);
     private static final Dimension MENU_PREFERRED_SIZE = new Dimension(400, 400);
-    private static final Dimension BOARD_PREFERRED_SIZE = new Dimension(800, 800);
     private static final Dimension BOARD_FIELD_PREFERRED_SIZE = new Dimension(200, 200);
 
     public static class GUIBoard extends JPanel {
