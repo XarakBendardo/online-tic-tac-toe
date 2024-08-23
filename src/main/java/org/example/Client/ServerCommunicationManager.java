@@ -37,16 +37,49 @@ public class ServerCommunicationManager {
             closeResources();
         }
     }
+
+    private static void processEntity(final TicTacToeProtocol.ProtocolEntity protocolEntity) {
+        switch (protocolEntity.getCommand()) {
+            case TicTacToeProtocol.Commands.SERVER_START_GAME -> {
+                TicTacToeGameForClient.initInstance(
+                        protocolEntity.getArgs()[0].equals("X") ? TicTacToeGame.Turn.Player_X : TicTacToeGame.Turn.Player_O
+                );
+                ComponentManager.switchMainFrameContentPane(ComponentManager.Board());
+                if(TicTacToeGameForClient.getInstance().getTurn() != TicTacToeGameForClient.getInstance().getPlayersSymbol()) {
+                    waitForOpponentsMove();
+                }
+            }
+            case TicTacToeProtocol.Commands.CLIENT_MOVE -> {
+                var coords = Tuple.of(
+                        Integer.parseInt(protocolEntity.getArgs()[0]),
+                        Integer.parseInt(protocolEntity.getArgs()[1])
+                );
+                ComponentManager.Board().setField(
+                        coords.first(),
+                        coords.second(),
+                        TicTacToeGameForClient.getInstance().getOpponentsSymbol().toString()
+                );
+                TicTacToeGameForClient.getInstance().setField(coords.first(), coords.second());
+                TicTacToeGameForClient.getInstance().changeTurn();
+            }
+            case TicTacToeProtocol.Commands.SERVER_END -> {
+                String prompt;
+                if(TicTacToeGameForClient.getInstance().getPlayersSymbol().toString().equals(protocolEntity.getArgs()[0])) {
+                    prompt = "YOU WIN";
+                } else if(TicTacToeGameForClient.getInstance().getOpponentsSymbol().toString().equals(protocolEntity.getArgs()[0])) {
+                    prompt = "YOU LOOSE";
+                } else  {
+                    prompt = "DRAW";
+                }
+                ComponentManager.switchMainFrameContentPane(ComponentManager.WaitingPanel(prompt));
+            }
+            default -> System.out.println("Unexpected server command: " + protocolEntity.getCommand());
+        }
+    }
     private static void initializeGame() {
         ComponentManager.switchMainFrameContentPane(ComponentManager.WaitingPanel("Waiting for an opponent..."));
-        TicTacToeProtocol.ProtocolEntity response = TicTacToeProtocol.receive(in);
-        TicTacToeGameForClient.initInstance(
-                response.getArgs()[0].equals("X") ? TicTacToeGame.Turn.Player_X : TicTacToeGame.Turn.Player_O
-        );
-        ComponentManager.switchMainFrameContentPane(ComponentManager.Board());
-        if(TicTacToeGameForClient.getInstance().getTurn() != TicTacToeGameForClient.getInstance().getPlayersSymbol()) {
-            waitForOpponentsMove();
-        }
+        TicTacToeProtocol.receive(in).forEach(ServerCommunicationManager::processEntity);
+        System.out.println("Initialized");
     }
 
     public static void startGame() {
@@ -56,27 +89,17 @@ public class ServerCommunicationManager {
 
     public static void sendMove(final int x, final int y) {
         try {
-            TicTacToeProtocol.send(
+            TicTacToeProtocol.addMessage(
                 out,
                 TicTacToeProtocol.ProtocolEntity.of(TicTacToeProtocol.Commands.CLIENT_MOVE, String.valueOf(x), String.valueOf(y))
             );
+            TicTacToeProtocol.send(out);
         } catch (IOException e) {
             System.out.println("Failure during sending a move");
         }
     }
 
     public static void waitForOpponentsMove() {
-        TicTacToeProtocol.ProtocolEntity response = TicTacToeProtocol.receive(in);
-        var coords = Tuple.of(
-            Integer.parseInt(response.getArgs()[0]),
-            Integer.parseInt(response.getArgs()[1])
-        );
-        ComponentManager.Board().setField(
-                coords.first(),
-                coords.second(),
-                TicTacToeGameForClient.getInstance().getOpponentsSymbol().toString()
-        );
-        TicTacToeGameForClient.getInstance().setField(coords.first(), coords.second());
-        TicTacToeGameForClient.getInstance().changeTurn();
+        TicTacToeProtocol.receive(in).forEach(ServerCommunicationManager::processEntity);
     }
 }

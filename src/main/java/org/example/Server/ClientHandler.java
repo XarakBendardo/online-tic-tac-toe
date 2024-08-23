@@ -13,11 +13,13 @@ public class ClientHandler extends Thread {
     private final Socket activePlayerSocket, inactivePlayerSocket;
     private BufferedReader activeIn, inactiveIn;
     private BufferedWriter activeOut, inactiveOut;
+    private boolean done;
 
     public ClientHandler(Socket activePlayerSocket, Socket inactivePlayerSocket) throws IOException {
         this.activePlayerSocket = activePlayerSocket;
         this.inactivePlayerSocket = inactivePlayerSocket;
         this.game = new TicTacToeGame();
+        this.done = false;
 
         BufferedReader tempIn_X = null, tempIn_O = null;
         BufferedWriter tempOut_X = null, tempOut_O;
@@ -51,7 +53,7 @@ public class ClientHandler extends Thread {
     public void run() {
         try {
             this.startGame();
-            while(true) {
+            while(!this.done) {
                 this.processTurn();
             }
         } catch (IOException e) {
@@ -71,21 +73,28 @@ public class ClientHandler extends Thread {
     }
 
     private void startGame() throws IOException {
-        TicTacToeProtocol.send(
+        TicTacToeProtocol.addMessage(
                 this.activeOut,
                 TicTacToeProtocol.ProtocolEntity.of(TicTacToeProtocol.Commands.SERVER_START_GAME, "X")
         );
-        System.out.println("Send to first player");
-        TicTacToeProtocol.send(
+        TicTacToeProtocol.addMessage(
                 this.inactiveOut,
                 TicTacToeProtocol.ProtocolEntity.of(TicTacToeProtocol.Commands.SERVER_START_GAME, "O")
         );
+        TicTacToeProtocol.send(this.activeOut);
+        System.out.println("Send to first player");
+        TicTacToeProtocol.send(this.inactiveOut);
         System.out.println("Send to second player");
     }
 
     private void processTurn() throws IOException {
-        var protocolEntity = TicTacToeProtocol.receive(this.activeIn);
-        System.out.println("Command: " + protocolEntity.getCommand());
+        for(var protocolEntity : TicTacToeProtocol.receive(this.activeIn)) {
+            System.out.println("Command: " + protocolEntity.getCommand());
+            this.processEntity(protocolEntity);
+        }
+    }
+
+    private void processEntity(final TicTacToeProtocol.ProtocolEntity protocolEntity) throws IOException {
         switch (protocolEntity.getCommand()) {
             case TicTacToeProtocol.Commands.CLIENT_MOVE -> {
                 System.out.println("Move: " + Arrays.toString(protocolEntity.getArgs()));
@@ -93,7 +102,12 @@ public class ClientHandler extends Thread {
                         Integer.parseInt(protocolEntity.getArgs()[0]),
                         Integer.parseInt(protocolEntity.getArgs()[1])
                 );
-                TicTacToeProtocol.send(this.inactiveOut, protocolEntity);
+                TicTacToeProtocol.addMessage(this.inactiveOut, protocolEntity);
+                if(this.game.hasEnded()) {
+                    this.endGame();
+                    TicTacToeProtocol.send(this.activeOut);
+                }
+                TicTacToeProtocol.send(this.inactiveOut);
             }
             default -> throw new IOException("Invalid command: " + protocolEntity.getCommand());
         }
@@ -108,5 +122,16 @@ public class ClientHandler extends Thread {
         this.activeOut = this.inactiveOut;
         this.inactiveOut = tempOut;
         this.game.changeTurn();
+    }
+
+    private void endGame() throws IOException {
+        var winnerMsg = TicTacToeProtocol.ProtocolEntity.of(
+                TicTacToeProtocol.Commands.SERVER_END,
+                this.game.checkWinner().toString()
+        );
+        TicTacToeProtocol.addMessage(this.activeOut, winnerMsg);
+        TicTacToeProtocol.addMessage(this.inactiveOut, winnerMsg);
+
+        this.done = true;
     }
 }

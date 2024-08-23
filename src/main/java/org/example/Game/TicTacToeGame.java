@@ -52,10 +52,12 @@ public class TicTacToeGame {
         }
     }
     private Turn turn;
+    private int fieldsTakenCount;
 
     public TicTacToeGame() {
         this.board = new Board();
         this.turn = Turn.Player_X;
+        fieldsTakenCount = 0;
     }
 
     public Turn getTurn() {return this.turn;}
@@ -63,9 +65,16 @@ public class TicTacToeGame {
     public boolean setField(final int x, final int y) {
         if(this.board.isFieldFree(x, y)) {
             this.board.setField(x, y, this.turn == Turn.Player_X ? Board.Field.X : Board.Field.O);
+            ++this.fieldsTakenCount;
             return true;
         }
         return false;
+    }
+
+    public boolean hasEnded() {
+        if(this.checkWinner() != Board.Field.EMPTY)
+            return true;
+        return this.fieldsTakenCount == Board.SIZE * Board.SIZE;
     }
 
     public Board.Field checkWinner() {

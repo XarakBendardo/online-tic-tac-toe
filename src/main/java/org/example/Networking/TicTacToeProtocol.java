@@ -3,13 +3,14 @@ package org.example.Networking;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TicTacToeProtocol {
     public static final String SEPARATOR = " ";
     public static class Commands {
         public static final String SERVER_START_GAME = "start";
         public static final String CLIENT_MOVE = "move";
-        public static final String SERVER_OK = "ok";
         public static final String SERVER_END = "end";
     }
 
@@ -58,15 +59,23 @@ public class TicTacToeProtocol {
         }
     }
 
-    public static void send(final BufferedWriter out, final ProtocolEntity entity) throws IOException {
+    public static void addMessage(final BufferedWriter out, final ProtocolEntity entity) throws IOException {
         out.write(entity.toString());
         out.newLine();
+    }
+
+    public static void send(final BufferedWriter out) throws IOException {
         out.flush();
     }
 
-    public static ProtocolEntity receive(final BufferedReader in) {
+    public static List<ProtocolEntity> receive(final BufferedReader in) {
         try {
-            return ProtocolEntity.of(in.readLine());
+            List<ProtocolEntity> entities = new ArrayList<>();
+            do {
+                entities.add(ProtocolEntity.of(in.readLine()));
+                System.out.println("RECEIVED");
+            } while(in.ready());
+            return entities;
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException();
