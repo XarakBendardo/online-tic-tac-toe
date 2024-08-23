@@ -7,10 +7,21 @@ import org.example.Networking.NetworkInfo;
 import org.example.Networking.TicTacToeProtocol;
 import org.example.utills.Tuple;
 
-public class GameRunner {
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+/**
+ * The biggest class in the program. Connects all 3 main kinds of components:
+ * - GUI components,
+ * - Logic components
+ * - Network communication components
+ */
+
+public class GameRunner implements MouseListener {
     private final MainFrame mainFrame;
-    private TicTacToeGameForClient game;
     private final BoardPanel boardPanel;
+
+    private TicTacToeGameForClient game;
 
     private final TicTacToeProtocol.CommunicationManager communicationManager;
 
@@ -23,7 +34,10 @@ public class GameRunner {
 
         // Main Frame
         this.mainFrame = new MainFrame(mainMenu);
+
+        // Board panel
         this.boardPanel = new BoardPanel();
+        this.boardPanel.applyMouseListener(this);
 
         // Communication manager
         this.communicationManager = TicTacToeProtocol.createCommunicationManager(NetworkInfo.SERVER_ADDRESS, NetworkInfo.SERVER_PORT);
@@ -59,6 +73,10 @@ public class GameRunner {
     private void processStartGame(final TicTacToeGame.Turn playersSymbol) {
         this.game = new TicTacToeGameForClient(playersSymbol);
         this.mainFrame.changeContentPane(this.boardPanel);
+        System.out.println(this.game.getTurn() == this.game.getPlayersSymbol());
+        if(this.game.getTurn() != this.game.getPlayersSymbol()) {
+            this.communicationManager.receive().forEach(this::processEntity);
+        }
     }
 
     private void processMove(final Tuple<Integer, Integer> coords) {
@@ -98,4 +116,37 @@ public class GameRunner {
             System.out.println("Failure during server connection setup.");
         }
     }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if(!(e.getSource() instanceof BoardPanel.BoardPanelField field)) return;
+        if(this.game.getTurn() != this.game.getPlayersSymbol()) return;
+        int x = field.getCordX(), y = field.getCordY();
+        if(this.game.setField(x, y)) {
+            this.boardPanel.setField(x, y, game.getTurn().toString());
+            this.game.changeTurn();
+            ThreadManager.runInNewThread(() -> {
+                this.communicationManager.addMessage(
+                        TicTacToeProtocol.ProtocolEntity.of(
+                                TicTacToeProtocol.Commands.CLIENT_MOVE,
+                                String.valueOf(x),
+                                String.valueOf(y))
+                );
+                this.communicationManager.send();
+                this.communicationManager.receive().forEach(this::processEntity);
+            });
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {}
+
+    @Override
+    public void mouseReleased(MouseEvent e) {}
+
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+
+    @Override
+    public void mouseExited(MouseEvent e) {}
 }

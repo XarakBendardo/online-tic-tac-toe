@@ -89,6 +89,7 @@ public class TicTacToeProtocol {
         public void addMessage(final ProtocolEntity entity) {
             try {
                 this.out.write(entity.toString());
+                this.out.newLine();
             } catch (IOException e) {
                 System.out.println("Failure during adding a message.");
                 throw new RuntimeException();
@@ -111,7 +112,6 @@ public class TicTacToeProtocol {
                 List<ProtocolEntity> entities = new ArrayList<>();
                 do {
                     entities.add(ProtocolEntity.of(in.readLine()));
-                    System.out.println("RECEIVED");
                 } while(in.ready());
                 return entities;
             } catch (IOException e) {
@@ -146,7 +146,6 @@ public class TicTacToeProtocol {
             List<ProtocolEntity> entities = new ArrayList<>();
             do {
                 entities.add(ProtocolEntity.of(in.readLine()));
-                System.out.println("RECEIVED");
             } while(in.ready());
             return entities;
         } catch (IOException e) {

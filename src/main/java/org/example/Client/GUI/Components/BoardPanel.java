@@ -70,5 +70,7 @@ public final class BoardPanel extends JPanel {
      */
     public void setField(final int x, final int y, final String content) {
         this.fields[y][x].add(new JLabel(content));
+        this.fields[y][x].revalidate();
+        this.fields[y][x].repaint();
     }
 }
