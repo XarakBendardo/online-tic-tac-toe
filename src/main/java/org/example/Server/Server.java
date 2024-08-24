@@ -13,8 +13,9 @@ public class Server
 {
     private static final ArrayList<TicTacToeProtocol.ServerCommunicationManager> managerQueue = new ArrayList<>(2);
     public static void main( String[] args ) {
+        TicTacToeProtocol.ServerListener listener = null;
         try {
-            TicTacToeProtocol.ServerListener listener = TicTacToeProtocol.createServerListener(NetworkInfo.SERVER_PORT);
+            listener = TicTacToeProtocol.createServerListener(NetworkInfo.SERVER_PORT);
             System.out.println("Server is running on port " + NetworkInfo.SERVER_PORT);
             while (true) {
                 registerPlayer(listener.acceptPlayer());
@@ -22,7 +23,11 @@ public class Server
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-
+            try {
+                if (listener != null) listener.closeResources();
+            } catch (Exception e) {
+                System.out.println("Failure during resources closure");
+            }
         }
     }
 

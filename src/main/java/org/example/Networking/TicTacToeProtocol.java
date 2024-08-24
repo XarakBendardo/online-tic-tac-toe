@@ -59,15 +59,18 @@ public class TicTacToeProtocol {
         }
     }
 
-    public interface ServerListener {
+    public interface ResourceManager {
+        void closeResources() throws Exception;
+    }
+
+    public interface ServerListener extends ResourceManager {
         ServerCommunicationManager acceptPlayer() throws Exception;
     }
 
-    public interface ServerCommunicationManager {
+    public interface ServerCommunicationManager extends ResourceManager {
         void addMessage(final ProtocolEntity entity);
         void send();
         List<ProtocolEntity> receive();
-        void closeResources() throws Exception;
     }
 
     public interface ClientCommunicationManager extends ServerCommunicationManager {
@@ -89,6 +92,11 @@ public class TicTacToeProtocol {
                     new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream())),
                     new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
             );
+        }
+
+        @Override
+        public void closeResources() throws Exception{
+            this.serverSocket.close();
         }
     }
 
@@ -166,14 +174,6 @@ public class TicTacToeProtocol {
 
     public static ServerListener createServerListener(final int port) throws IOException {
         return new ConcreteServerListener(port);
-    }
-
-    public static ServerCommunicationManager createServerCommunicationManager(final Socket socket) throws IOException {
-        return new ConcreteServerCommunicationManager(
-                socket,
-                new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())),
-                new BufferedReader(new InputStreamReader(socket.getInputStream()))
-        );
     }
 
     public static ClientCommunicationManager createClientCommunicationManager(final String serverAddress, final int port) {

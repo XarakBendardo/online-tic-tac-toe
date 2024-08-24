@@ -4,7 +4,6 @@ import org.example.Game.TicTacToeGame;
 import org.example.Networking.TicTacToeProtocol;
 
 import java.io.*;
-import java.net.Socket;
 import java.util.Arrays;
 
 public class ClientHandler extends Thread {
