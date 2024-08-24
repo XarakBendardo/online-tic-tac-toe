@@ -6,9 +6,6 @@ import org.example.Networking.TicTacToeProtocol;
 import java.io.*;
 import java.util.ArrayList;
 
-/*
-* @TODO listeners and communication managers should implement Resource interface
-*/
 public class Server
 {
     private static final ArrayList<TicTacToeProtocol.ServerCommunicationManager> managerQueue = new ArrayList<>(2);
