@@ -72,8 +72,10 @@ public class TicTacToeProtocol {
     private static class ConcreteServerCommunicationManager implements ServerCommunicationManager {
         protected BufferedWriter out;
         protected BufferedReader in;
+        protected Socket socket;
 
-        private ConcreteServerCommunicationManager(final BufferedWriter out, final BufferedReader in) {
+        private ConcreteServerCommunicationManager(final Socket socket, final BufferedWriter out, final BufferedReader in) {
+            this.socket = socket;
             this.in = in;
             this.out = out;
         }
@@ -115,6 +117,7 @@ public class TicTacToeProtocol {
 
         @Override
         public void closeResources() throws Exception {
+            if(this.socket != null) this.socket.close();
             if(this.out != null) this.out.close();
             if(this.out != null) this.in.close();
         }
@@ -124,9 +127,8 @@ public class TicTacToeProtocol {
 
         private final String serverAddress;
         private final int port;
-        private Socket socket;
         private ConcreteClientCommunicationManager(final String serverAddress, final int port) {
-            super(null, null);
+            super(null, null, null);
             this.serverAddress = serverAddress;
             this.port = port;
         }
@@ -137,16 +139,11 @@ public class TicTacToeProtocol {
             this.out = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
             this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
         }
-
-        @Override
-        public void closeResources() throws Exception {
-            super.closeResources();
-            if(this.socket != null) this.socket.close();
-        }
     }
 
     public static ServerCommunicationManager createServerCommunicationManager(final Socket socket) throws IOException {
         return new ConcreteServerCommunicationManager(
+                socket,
                 new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())),
                 new BufferedReader(new InputStreamReader(socket.getInputStream()))
         );
@@ -154,27 +151,5 @@ public class TicTacToeProtocol {
 
     public static ClientCommunicationManager createClientCommunicationManager(final String serverAddress, final int port) {
         return new ConcreteClientCommunicationManager(serverAddress, port);
-    }
-
-    public static void addMessage(final BufferedWriter out, final ProtocolEntity entity) throws IOException {
-        out.write(entity.toString());
-        out.newLine();
-    }
-
-    public static void send(final BufferedWriter out) throws IOException {
-        out.flush();
-    }
-
-    public static List<ProtocolEntity> receive(final BufferedReader in) {
-        try {
-            List<ProtocolEntity> entities = new ArrayList<>();
-            do {
-                entities.add(ProtocolEntity.of(in.readLine()));
-            } while(in.ready());
-            return entities;
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException();
-        }
     }
 }
