@@ -58,31 +58,24 @@ public class TicTacToeProtocol {
         }
     }
 
-    public interface CommunicationManager {
-        void createServerConnection() throws Exception;
+    public interface ServerCommunicationManager {
         void addMessage(final ProtocolEntity entity);
         void send();
         List<ProtocolEntity> receive();
         void closeResources() throws Exception;
     }
 
-    private static class ConcreteCommunicationManager implements CommunicationManager {
-        private BufferedWriter out;
-        private BufferedReader in;
-        private Socket socket;
-        private final String serverAddress;
-        private final int port;
+    public interface ClientCommunicationManager extends ServerCommunicationManager {
+        void createServerConnection() throws Exception;
+    }
 
-        private ConcreteCommunicationManager(String serverAddress, int port) {
-            this.serverAddress = serverAddress;
-            this.port = port;
-        }
+    private static class ConcreteServerCommunicationManager implements ServerCommunicationManager {
+        protected BufferedWriter out;
+        protected BufferedReader in;
 
-        @Override
-        public void createServerConnection() throws Exception{
-            this.socket = new Socket(this.serverAddress, this.port);
-            this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        private ConcreteServerCommunicationManager(final BufferedWriter out, final BufferedReader in) {
+            this.in = in;
+            this.out = out;
         }
 
         @Override
@@ -122,14 +115,45 @@ public class TicTacToeProtocol {
 
         @Override
         public void closeResources() throws Exception {
-            if(this.socket != null) this.socket.close();
             if(this.out != null) this.out.close();
             if(this.out != null) this.in.close();
         }
     }
 
-    public static CommunicationManager createCommunicationManager(String serverAddress, int port) {
-        return new ConcreteCommunicationManager(serverAddress, port);
+    private static class ConcreteClientCommunicationManager extends ConcreteServerCommunicationManager implements ClientCommunicationManager {
+
+        private final String serverAddress;
+        private final int port;
+        private Socket socket;
+        private ConcreteClientCommunicationManager(final String serverAddress, final int port) {
+            super(null, null);
+            this.serverAddress = serverAddress;
+            this.port = port;
+        }
+
+        @Override
+        public void createServerConnection() throws Exception {
+            this.socket = new Socket(this.serverAddress, this.port);
+            this.out = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
+            this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+        }
+
+        @Override
+        public void closeResources() throws Exception {
+            super.closeResources();
+            if(this.socket != null) this.socket.close();
+        }
+    }
+
+    public static ServerCommunicationManager createServerCommunicationManager(final Socket socket) throws IOException {
+        return new ConcreteServerCommunicationManager(
+                new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())),
+                new BufferedReader(new InputStreamReader(socket.getInputStream()))
+        );
+    }
+
+    public static ClientCommunicationManager createClientCommunicationManager(final String serverAddress, final int port) {
+        return new ConcreteClientCommunicationManager(serverAddress, port);
     }
 
     public static void addMessage(final BufferedWriter out, final ProtocolEntity entity) throws IOException {

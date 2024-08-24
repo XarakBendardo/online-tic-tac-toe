@@ -23,7 +23,7 @@ public class GameRunner implements MouseListener {
 
     private TicTacToeGameForClient game;
 
-    private final TicTacToeProtocol.CommunicationManager communicationManager;
+    private final TicTacToeProtocol.ClientCommunicationManager communicationManager;
 
     public GameRunner() {
         // Main Menu
@@ -40,7 +40,7 @@ public class GameRunner implements MouseListener {
         this.boardPanel.applyMouseListener(this);
 
         // Communication manager
-        this.communicationManager = TicTacToeProtocol.createCommunicationManager(NetworkInfo.SERVER_ADDRESS, NetworkInfo.SERVER_PORT);
+        this.communicationManager = TicTacToeProtocol.createClientCommunicationManager(NetworkInfo.SERVER_ADDRESS, NetworkInfo.SERVER_PORT);
     }
 
     public final void run() {
