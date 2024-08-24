@@ -1,6 +1,7 @@
 package org.example.Networking;
 
 import java.io.*;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +59,10 @@ public class TicTacToeProtocol {
         }
     }
 
+    public interface ServerListener {
+        ServerCommunicationManager acceptPlayer() throws Exception;
+    }
+
     public interface ServerCommunicationManager {
         void addMessage(final ProtocolEntity entity);
         void send();
@@ -67,6 +72,24 @@ public class TicTacToeProtocol {
 
     public interface ClientCommunicationManager extends ServerCommunicationManager {
         void createServerConnection() throws Exception;
+    }
+
+    private static class ConcreteServerListener implements ServerListener {
+        private final ServerSocket serverSocket;
+
+        private ConcreteServerListener(final int port) throws IOException {
+            this.serverSocket = new ServerSocket(port);
+        }
+
+        @Override
+        public ServerCommunicationManager acceptPlayer() throws Exception {
+            var clientSocket = this.serverSocket.accept();
+            return new ConcreteServerCommunicationManager(
+                    clientSocket,
+                    new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream())),
+                    new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))
+            );
+        }
     }
 
     private static class ConcreteServerCommunicationManager implements ServerCommunicationManager {
@@ -139,6 +162,10 @@ public class TicTacToeProtocol {
             this.out = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
             this.in = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
         }
+    }
+
+    public static ServerListener createServerListener(final int port) throws IOException {
+        return new ConcreteServerListener(port);
     }
 
     public static ServerCommunicationManager createServerCommunicationManager(final Socket socket) throws IOException {

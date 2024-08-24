@@ -1,45 +1,42 @@
 package org.example.Server;
 
 import org.example.Networking.NetworkInfo;
+import org.example.Networking.TicTacToeProtocol;
 
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 
+/*
+* @TODO listeners and communication managers should implement Resource interface
+*/
 public class Server
 {
-    private static final ArrayList<Socket> socketQueue = new ArrayList<>(2);
+    private static final ArrayList<TicTacToeProtocol.ServerCommunicationManager> managerQueue = new ArrayList<>(2);
     public static void main( String[] args ) {
-        ServerSocket serverSocket = null;
         try {
-            serverSocket = new ServerSocket(NetworkInfo.SERVER_PORT);
+            TicTacToeProtocol.ServerListener listener = TicTacToeProtocol.createServerListener(NetworkInfo.SERVER_PORT);
             System.out.println("Server is running on port " + NetworkInfo.SERVER_PORT);
             while (true) {
-                registerPlayer(serverSocket.accept());
+                registerPlayer(listener.acceptPlayer());
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (serverSocket != null) serverSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
         }
     }
 
-    public static void registerPlayer(Socket socket) {
+    public static void registerPlayer(TicTacToeProtocol.ServerCommunicationManager manager) {
         String msg = "Client connected. ";
-        if(socketQueue.size() == 1) {
+        if(managerQueue.size() == 1) {
             try {
-                new ClientHandler(socketQueue.remove(0), socket).start();
+                new ClientHandler(managerQueue.remove(0), manager).start();
                 msg += "Game started.";
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            socketQueue.add(socket);
+            managerQueue.add(manager);
             msg += "Waiting for second player.";
         }
         System.out.println(msg);

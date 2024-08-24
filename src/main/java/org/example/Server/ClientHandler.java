@@ -13,9 +13,11 @@ public class ClientHandler extends Thread {
     private TicTacToeProtocol.ServerCommunicationManager activeManager, inactiveManager;
     private boolean done;
 
-    public ClientHandler(Socket activePlayerSocket, Socket inactivePlayerSocket) throws IOException {
-        this.activeManager = TicTacToeProtocol.createServerCommunicationManager(activePlayerSocket);
-        this.inactiveManager = TicTacToeProtocol.createServerCommunicationManager(inactivePlayerSocket);
+    public ClientHandler(
+            final TicTacToeProtocol.ServerCommunicationManager activePlayerManager,
+            final TicTacToeProtocol.ServerCommunicationManager inactivePlayerManager) throws IOException {
+        this.activeManager = activePlayerManager;
+        this.inactiveManager = inactivePlayerManager;
         this.game = new TicTacToeGame();
         this.done = false;
     }
