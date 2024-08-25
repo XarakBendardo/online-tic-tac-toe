@@ -15,6 +15,7 @@ public final class BoardPanel extends JPanel {
      */
     public static final class BoardPanelField extends JPanel {
         public static final Dimension PREFERRED_SIZE = new Dimension(200, 200);
+        public static final int FONT_SIZE = 100;
         private final int x, y;
 
         /**
@@ -24,6 +25,7 @@ public final class BoardPanel extends JPanel {
         private BoardPanelField(final int cordX, final int cordY) {
             super();
             this.setPreferredSize(PREFERRED_SIZE);
+            this.setLayout(new GridBagLayout());
 
             this.x = cordX;
             this.y = cordY;
@@ -36,6 +38,13 @@ public final class BoardPanel extends JPanel {
         public int getCordY() {
             return y;
         }
+    }
+
+    private static JLabel BoardPanelFieldContent(final String text) {
+        var content = new JLabel(text);
+        var font = content.getFont();
+        content.setFont(new Font(font.getName(), font.getStyle(), BoardPanelField.FONT_SIZE));
+        return content;
     }
 
     private final BoardPanelField[][] fields;
@@ -68,8 +77,8 @@ public final class BoardPanel extends JPanel {
     /**
      * Puts a JLabel with given content in board panel field with given coordinates
      */
-    public void setField(final int x, final int y, final String content) {
-        this.fields[y][x].add(new JLabel(content));
+    public void setField(final int x, final int y, final String text) {
+        this.fields[y][x].add(BoardPanelFieldContent(text));
         this.fields[y][x].revalidate();
         this.fields[y][x].repaint();
     }
