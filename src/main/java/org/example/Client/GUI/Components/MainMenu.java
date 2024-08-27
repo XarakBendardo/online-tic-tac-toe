@@ -14,10 +14,32 @@ public final class MainMenu extends JPanel {
      */
     public MainMenu(JButton... buttons) {
         super();
+
+        this.setLayout(new BorderLayout());
+
+        JPanel contentHolder = new JPanel();
+        contentHolder.setLayout(new GridLayout(buttons.length, 1, 0, 50));
+
+        this.add(SideSpacer(), BorderLayout.EAST);
+        this.add(SideSpacer(), BorderLayout.WEST);
+        this.add(UpDownSpacer(), BorderLayout.NORTH);
+        this.add(UpDownSpacer(), BorderLayout.SOUTH);
+
         this.setPreferredSize(PREFERRED_SIZE);
         for(final var button : buttons)
-            this.add(button);
-        var layout = new GridLayout(buttons.length, 1, 0, 50);
-        this.setLayout(layout);
+            contentHolder.add(button, BorderLayout.NORTH);
+        this.add(contentHolder, BorderLayout.CENTER);
+    }
+
+    private static JPanel SideSpacer() {
+        var spacer = new JPanel();
+        spacer.setPreferredSize(new Dimension(100, 0));
+        return spacer;
+    }
+
+    private static JPanel UpDownSpacer() {
+        var spacer = new JPanel();
+        spacer.setPreferredSize(new Dimension(0, 100));
+        return spacer;
     }
 }
