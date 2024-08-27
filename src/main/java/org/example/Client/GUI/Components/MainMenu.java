@@ -27,7 +27,7 @@ public final class MainMenu extends JPanel {
 
         this.setPreferredSize(PREFERRED_SIZE);
         for(final var button : buttons)
-            contentHolder.add(button, BorderLayout.NORTH);
+            contentHolder.add(button, BorderLayout.CENTER);
         this.add(contentHolder, BorderLayout.CENTER);
     }
 
