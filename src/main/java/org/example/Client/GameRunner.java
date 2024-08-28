@@ -7,6 +7,7 @@ import org.example.Networking.NetworkInfo;
 import org.example.Networking.TicTacToeProtocol;
 import org.example.utills.Tuple;
 
+import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -28,12 +29,17 @@ public class GameRunner implements MouseListener {
     public GameRunner() {
         // Main Menu
         var mainMenu = new MainMenu(
-                Buttons.of("PLAY", e -> ThreadManager.runInNewThread(this::initializeGame)),
+                Buttons.of("PLAY", e -> {
+                    ((JButton) e.getSource()).setEnabled(false);
+                    ThreadManager.runInNewThread(this::initializeGame);
+                }),
                 Buttons.of("EXIT", e -> this.exit())
         );
 
         // Main Frame
         this.mainFrame = new MainFrame(mainMenu);
+        this.mainFrame.setLocationRelativeTo(null);
+        this.mainFrame.setPrompt("Welcome to Tic Tac Toe game!");
 
         // Board panel
         this.boardPanel = new BoardPanel();
@@ -72,9 +78,12 @@ public class GameRunner implements MouseListener {
 
     private void processStartGame(final TicTacToeGame.Turn playersSymbol) {
         this.game = new TicTacToeGameForClient(playersSymbol);
-        this.mainFrame.changeContentPane(this.boardPanel);
+        this.mainFrame.setContentPane(this.boardPanel);
         System.out.println(this.game.getTurn() == this.game.getPlayersSymbol());
-        if(this.game.getTurn() != this.game.getPlayersSymbol()) {
+        if(this.game.getTurn() == this.game.getPlayersSymbol()) {
+            this.mainFrame.setPrompt("Your move");
+        } else {
+            this.mainFrame.setPrompt("Waiting for opponents move");
             this.communicationManager.receive().forEach(this::processEntity);
         }
     }
@@ -87,6 +96,7 @@ public class GameRunner implements MouseListener {
         );
         this.game.setField(coords.first(), coords.second());
         this.game.changeTurn();
+        this.mainFrame.setPrompt("Your move");
     }
 
     private void processEndGame(final String winner) {
@@ -95,10 +105,10 @@ public class GameRunner implements MouseListener {
             prompt = "YOU WIN";
         } else if(this.game.getOpponentsSymbol().toString().equals(winner)) {
             prompt = "YOU LOOSE";
-        } else  {
+        } else {
             prompt = "DRAW";
         }
-        this.mainFrame.changeContentPane(PromptPanel.of(prompt));
+        this.mainFrame.setPrompt(prompt);
 
         try {
             this.communicationManager.closeResources();
@@ -109,7 +119,7 @@ public class GameRunner implements MouseListener {
 
     private void initializeGame() {
         try {
-            this.mainFrame.changeContentPane(PromptPanel.of("Waiting for game initialization..."));
+            this.mainFrame.setPrompt("Waiting for game initialization...");
             this.communicationManager.createServerConnection();
             this.communicationManager.receive().forEach(this::processEntity);
         } catch (Exception e) {
@@ -125,6 +135,7 @@ public class GameRunner implements MouseListener {
         if(this.game.setField(x, y)) {
             this.boardPanel.setField(x, y, game.getTurn().toString());
             this.game.changeTurn();
+            this.mainFrame.setPrompt("Waiting for opponents move");
             ThreadManager.runInNewThread(() -> {
                 this.communicationManager.addMessage(
                         TicTacToeProtocol.ProtocolEntity.of(
